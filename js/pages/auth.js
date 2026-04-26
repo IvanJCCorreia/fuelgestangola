@@ -27,9 +27,12 @@ export function renderAuthPage({ navigate }) {
       </div>
       <div class="auth-right">
         <div class="auth-form-header">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
-            <div style="background: #f97316; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">⛽</div>
-            <span style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -1px; color: #fff;">Fuel<span style="color: #f97316;">gest</span></span>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+            <div style="background: #f97316; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">⛽</div>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -1px; line-height: 1; color: #fff;">Fuel<span style="color: #f97316;">gest</span></span>
+              <span style="font-size: 8px; text-transform: uppercase; letter-spacing: 4px; color: #666; font-weight: 700; margin-top: 2px;">Angola</span>
+            </div>
           </div>
           <h2>${mode === 'login' ? 'Bem-vindo de volta' : 'Recuperar senha'}</h2>
           <p>${mode === 'login' ? 'Aceda à sua conta para continuar' : 'Insira o seu email para recuperar a senha'}</p>
