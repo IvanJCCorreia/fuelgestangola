@@ -85,7 +85,7 @@ export async function renderSalesPage({ company, stations }) {
     }
   };
 
-  const showSaleModal = () => {
+  const showSaleModal = async () => {
     const formHtml = `
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Bomba *</label>

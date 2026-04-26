@@ -10,6 +10,10 @@ import {
 import { renderSidebar } from './components/sidebar.js';
 import { createToast, renderLoading } from './components/ui.js';
 
+console.log("🚀 FuelgestApp: Inicializando...");
+// Descomente a linha abaixo se quiser um alerta visual no navegador
+// alert("O JavaScript começou a carregar!");
+
 // Page Imports
 import { renderAuthPage } from './pages/auth.js';
 import { renderDashboard } from './pages/dashboard.js';
@@ -43,21 +47,33 @@ class App {
   }
 
   async init() {
-    this.renderInitialLoading();
-    
-    if (isDemo()) {
-      this.setupDemoAuth();
-    } else {
-      onAuthStateChanged(auth, async (u) => {
-        this.user = u;
-        if (u) {
-          await this.loadSessionData(u.uid);
-        } else {
-          this.resetSession();
-        }
-        this.loading = false;
-        this.render();
-      });
+    try {
+      this.renderInitialLoading();
+      
+      if (isDemo()) {
+        this.setupDemoAuth();
+      } else {
+        onAuthStateChanged(auth, async (u) => {
+          this.user = u;
+          if (u) {
+            await this.loadSessionData(u.uid);
+          } else {
+            this.resetSession();
+          }
+          this.loading = false;
+          this.render();
+        });
+      }
+    } catch (error) {
+      console.error("❌ Erro fatal na inicialização:", error);
+      this.appEl.innerHTML = `
+        <div class="loading-screen" style="color:var(--red);padding:20px;text-align:center">
+          <div style="font-size:48px;margin-bottom:20px">⚠️</div>
+          <h2 style="margin-bottom:10px">Erro ao carregar o sistema</h2>
+          <p style="font-size:13px;max-width:400px;margin:0 auto 20px;color:var(--text2)">${error.message}</p>
+          <button class="btn btn-primary" onclick="location.reload()">Tentar Novamente</button>
+        </div>
+      `;
     }
   }
 

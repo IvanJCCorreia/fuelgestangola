@@ -19,7 +19,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <div class="loading-screen">
+      <div style="font-size:48px;margin-bottom:16px">⛽</div>
+      <div class="spinner" style="width:32px;height:32px"></div>
+      <p>A inicializar FuelgestAngola...</p>
+      <p style="font-size:10px;color:var(--text3);margin-top:20px">Se este ecrã não desaparecer, verifique a ligação ao Firebase ou o console do navegador.</p>
+    </div>
+  </div>
 
   <!-- App Entry -->
   <script type="module" src="js/app.js"></script>
