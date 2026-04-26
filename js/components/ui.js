@@ -3,7 +3,7 @@ export const icons = {
   sales: '💳', receipts: '📦', stock: '📊', reports: '📋', users: '👥',
   logout: '⏏', edit: '✏', delete: '🗑', add: '＋', close: '✕',
   fuel: '⛽', alert: '⚠', check: '✓', arrow: '→', back: '←',
-  settings: '⚙', audit: '📜', diff: '⚖'
+  settings: '⚙', audit: '📜', diff: '⚖', info: 'ⓘ', search: '🔍', save: '💾'
 };
 
 export function createToast(msg, type = 'info') {
