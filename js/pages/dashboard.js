@@ -15,15 +15,19 @@ export async function renderDashboard({ company, stations }) {
   try {
     const today = new Date(); today.setHours(0,0,0,0);
     let salesDay = 0, salesTotal = 0, receiptsDay = 0, allSales = [], allTanks = [];
+    const salesByStation = {};
 
     for (const st of stations) {
+      salesByStation[st.name] = 0;
       const base = `companies/${company.id}/stations/${st.id}`;
       // Sales
       const salesData = await col(`${base}/sales`);
       salesData.forEach(s => {
-        salesTotal += (s.total || 0);
+        const val = (s.total || 0);
+        salesTotal += val;
+        salesByStation[st.name] += val;
         const sDate = s.date?.toDate ? s.date.toDate() : new Date(s.date);
-        if (sDate >= today) salesDay += (s.total || 0);
+        if (sDate >= today) salesDay += val;
         allSales.push({ ...s, stationName: st.name });
       });
       // Tanks
@@ -62,6 +66,13 @@ export async function renderDashboard({ company, stations }) {
           <div class="stat-label">Alertas Stock</div>
           <div class="stat-value ${tanksLow > 0 ? 'red' : 'green'}">${tanksLow}</div>
           <div class="stat-sub">Tanques com stock baixo (<20%)</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><span class="card-title">📊 Comparativo de Vendas por Posto (AOA)</span></div>
+        <div style="height:300px;position:relative">
+          <canvas id="stationsChart"></canvas>
         </div>
       </div>
 
@@ -115,6 +126,50 @@ export async function renderDashboard({ company, stations }) {
         </div>
       ` : ''}
     `;
+
+    // Initialize Chart
+    setTimeout(() => {
+      const ctx = document.getElementById('stationsChart');
+      if (ctx && window.Chart) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(salesByStation),
+            datasets: [{
+              label: 'Vendas Totais (AOA)',
+              data: Object.values(salesByStation),
+              backgroundColor: 'rgba(245, 158, 11, 0.7)',
+              borderColor: '#f59e0b',
+              borderWidth: 1,
+              borderRadius: 5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `AOA ${context.parsed.y.toLocaleString('pt-AO', { minimumFractionDigits: 2 })}`
+                }
+              }
+            },
+            scales: {
+              y: { 
+                beginAtZero: true, 
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#71717a' }
+              },
+              x: { 
+                grid: { display: false },
+                ticks: { color: '#71717a' }
+              }
+            }
+          }
+        });
+      }
+    }, 100);
   } catch (e) {
     console.error(e);
     page.innerHTML = '<div class="alert alert-error">Erro ao carregar dashboard</div>';
