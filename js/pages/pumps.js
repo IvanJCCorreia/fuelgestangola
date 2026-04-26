@@ -56,7 +56,7 @@ export async function renderPumpsPage({ company, stations }) {
           <div class="form-group"><label class="form-label">Nº Bomba *</label><input class="form-input" id="p-num" value="${editing?.number || ''}"></div>
           <div class="form-group"><label class="form-label">Produto *</label>
             <select class="form-input" id="p-prod">
-              ${['Gasolina 91', 'Gasóleo', 'Gasolina 95', 'LPG'].map(prod => `<option value="${prod}" ${editing?.product === prod ? 'selected' : ''}>${prod}</option>`).join('')}
+              ${['Gasolina', 'Gasóleo', 'Petróleo'].map(prod => `<option value="${prod}" ${editing?.product === prod ? 'selected' : ''}>${prod}</option>`).join('')}
             </select>
           </div>
         </div>

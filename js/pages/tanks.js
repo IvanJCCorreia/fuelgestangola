@@ -66,7 +66,7 @@ export async function renderTanksPage({ company, stations }) {
           <div class="form-group"><label class="form-label">Nº Tanque</label><input class="form-input" id="t-num" value="${editing?.number || ''}"></div>
           <div class="form-group"><label class="form-label">Produto *</label>
             <select class="form-input" id="t-prod">
-              ${['Gasolina 91', 'Gasóleo', 'Gasolina 95', 'LPG'].map(p => `<option value="${p}" ${editing?.product === p ? 'selected' : ''}>${p}</option>`).join('')}
+              ${['Gasolina', 'Gasóleo', 'Petróleo'].map(p => `<option value="${p}" ${editing?.product === p ? 'selected' : ''}>${p}</option>`).join('')}
             </select>
           </div>
         </div>

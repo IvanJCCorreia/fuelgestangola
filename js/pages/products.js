@@ -61,8 +61,12 @@ export async function renderProductsPage({ company }) {
     const formHtml = `
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label">Nome do Produto (Ex: Gasolina, Gasóleo)</label>
-          <input class="form-input" id="prod-name" value="${product?.name || ''}" placeholder="Ex: Gasolina" required>
+          <label class="form-label">Nome do Produto</label>
+          <select class="form-input" id="prod-name">
+            <option value="Gasolina" ${product?.name === 'Gasolina' ? 'selected' : ''}>Gasolina</option>
+            <option value="Gasóleo" ${product?.name === 'Gasóleo' ? 'selected' : ''}>Gasóleo</option>
+            <option value="Petróleo" ${product?.name === 'Petróleo' ? 'selected' : ''}>Petróleo</option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Preço por Litro (AOA)</label>
