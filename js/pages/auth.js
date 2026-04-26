@@ -27,6 +27,10 @@ export function renderAuthPage({ navigate }) {
       </div>
       <div class="auth-right">
         <div class="auth-form-header">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+            <div style="background: #f97316; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">⛽</div>
+            <span style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -1px; color: #fff;">Fuel<span style="color: #f97316;">gest</span></span>
+          </div>
           <h2>${mode === 'login' ? 'Bem-vindo de volta' : 'Recuperar senha'}</h2>
           <p>${mode === 'login' ? 'Aceda à sua conta para continuar' : 'Insira o seu email para recuperar a senha'}</p>
         </div>
