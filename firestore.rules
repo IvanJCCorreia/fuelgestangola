@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Verifica se o perfil do utilizador existe
+    function userExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Obtém os dados do utilizador de forma segura
+    function getUserData() {
+      return userExists() ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data : null;
+    }
+
+    function isAppAdmin() {
+      let data = getUserData();
+      return isAuthenticated() && data != null && data.role == 'admin';
+    }
+
+    function isCompanyMember(companyId) {
+      let data = getUserData();
+      return isAuthenticated() && data != null && data.companyId == companyId;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // --- REGRAS ---
+    
+    // Coleção de Utilizadores
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAppAdmin();
+      // Permite criar o próprio perfil se ainda não existir (Bootstrap)
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAppAdmin() || (isOwner(userId) && request.resource.data.role == resource.data.role);
+    }
+
+    // Coleção de Empresas
+    match /companies/{companyId} {
+      allow read: if isCompanyMember(companyId) || isAppAdmin();
+      // Permite que qualquer utilizador logado crie uma empresa (Necessário para o Setup inicial)
+      allow create: if isAuthenticated();
+      allow update: if isAppAdmin();
+
+      // Subcoleções (Postos, Vendas, Tanques, etc.)
+      match /{allSubcollections=**} {
+        allow read, write: if isCompanyMember(companyId) || isAppAdmin();
+      }
+      
+      // Logs de Auditoria
+      match /audit/{auditId} {
+        allow create: if isAuthenticated(); // Permite registar logs durante o setup
+        allow read: if isCompanyMember(companyId) || isAppAdmin();
+      }
+    }
+
+    // Bloqueio padrão para tudo o resto
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

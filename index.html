@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FuelgestAngola — Gestão Profissional de Combustíveis</title>
+  <meta name="description" content="Plataforma SaaS para gestão de postos de abastecimento em Angola.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- App Entry -->
+  <script type="module" src="js/app.js"></script>
+  
+  <script>
+    if (window.location.protocol === 'file:') {
+      document.getElementById('app').innerHTML = `
+        <div style="padding: 40px; text-align: center; font-family: sans-serif; color: #ef4444; background: #111; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <h1 style="font-size: 48px; margin-bottom: 20px;">⚠️ Erro de Protocolo</h1>
+          <p style="font-size: 18px; max-width: 600px; line-height: 1.6; color: #fafafa;">
+            O site não pode ser aberto diretamente clicando no arquivo. <br><br>
+            Como agora o projeto é <strong>modular e profissional</strong>, o navegador exige que ele seja aberto através de um servidor local (HTTP).
+          </p>
+          <div style="margin-top: 30px; text-align: left; background: #18181b; padding: 20px; border-radius: 8px; border: 1px solid #2d2d31;">
+            <p style="font-weight: bold; margin-bottom: 10px;">Como resolver:</p>
+            <ol style="margin-left: 20px; color: #a1a1aa;">
+              <li>Use o seu <strong>XAMPP</strong> e aceda a: <br> <code style="color: #f59e0b;">http://localhost/FuelgestAngola/</code></li>
+              <li>Ou use o comando: <code style="color: #f59e0b;">npx http-server</code> na pasta do projeto.</li>
+            </ol>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

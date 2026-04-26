@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FuelgestAngola — Gestão de Postos de Combustível</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#09090b;
+  --surface:#111113;
+  --surface2:#18181b;
+  --surface3:#27272a;
+  --border:#2d2d31;
+  --border2:#3f3f46;
+  --accent:#f59e0b;
+  --accent2:#d97706;
+  --accent3:#fcd34d;
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#3b82f6;
+  --purple:#a855f7;
+  --text:#fafafa;
+  --text2:#a1a1aa;
+  --text3:#71717a;
+  --sidebar:220px;
+  --radius:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%;width:100%}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Syne',sans-serif;line-height:1.2}
+code,pre,.mono{font-family:'JetBrains Mono',monospace}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* Layout */
+.app-shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+/* Sidebar */
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.logo-mark{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;line-height:1.1}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.company-selector{padding:12px 16px;border-bottom:1px solid var(--border)}
+.company-select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer}
+.company-select:focus{outline:none;border-color:var(--accent)}
+.sidebar-nav{flex:1;padding:12px 8px}
+.nav-group{margin-bottom:20px}
+.nav-group-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;cursor:pointer;color:var(--text2);transition:.15s;font-size:13px;font-weight:500;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(245,158,11,.12);color:var(--accent);border-color:rgba(245,158,11,.2)}
+.nav-icon{width:18px;height:18px;flex-shrink:0;opacity:.7}
+.nav-item.active .nav-icon{opacity:1}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
+.user-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;background:var(--surface2);cursor:pointer}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#000;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+/* Top bar */
+.topbar{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}
+.page-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:.15s;border:none;font-family:'DM Sans',sans-serif;white-space:nowrap;text-decoration:none}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:4px 10px;font-size:11px}
+.btn-icon{padding:8px;border-radius:6px}
+/* Page content */
+.page-content{padding:24px;flex:1}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+/* Stat cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 0 0 60px;opacity:.08}
+.stat-card.amber::before{background:var(--accent)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.red::before{background:var(--red)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.stat-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.stat-value.amber{color:var(--accent)}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.blue{color:var(--blue)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:6px}
+/* Table */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface2);padding:11px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.badge-amber{background:rgba(245,158,11,.15);color:var(--accent3)}
+.badge-green{background:rgba(34,197,94,.12);color:var(--green)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--red)}
+.badge-blue{background:rgba(59,130,246,.12);color:var(--blue)}
+.badge-gray{background:var(--surface3);color:var(--text3)}
+/* Forms */
+.form-grid{display:grid;gap:16px}
+.form-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.03em}
+.form-input,.form-select,.form-textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-size:13px;font-family:'DM Sans',sans-serif;transition:.15s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.form-input::placeholder{color:var(--text3)}
+.form-select option{background:var(--surface2)}
+.form-textarea{resize:vertical;min-height:80px}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+/* Alert */
+.alert{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-bottom:16px;border-left:3px solid}
+.alert-error{background:rgba(239,68,68,.08);border-color:var(--red);color:#fca5a5}
+.alert-success{background:rgba(34,197,94,.08);border-color:var(--green);color:#86efac}
+.alert-warn{background:rgba(245,158,11,.08);border-color:var(--accent);color:var(--accent3)}
+/* Progress bar */
+.progress-bar{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:.3s}
+.progress-fill.amber{background:var(--accent)}
+.progress-fill.green{background:var(--green)}
+.progress-fill.red{background:var(--red)}
+/* Auth page */
+.auth-page{min-height:100vh;display:flex;align-items:stretch;background:var(--bg)}
+.auth-left{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:48px;background:linear-gradient(135deg,#1a1205 0%,#0a0900 60%,#0f0a00 100%);position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(245,158,11,.15) 0%,transparent 60%)}
+.auth-bg-pattern{position:absolute;inset:0;opacity:.05;background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(245,158,11,.5) 40px,rgba(245,158,11,.5) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(245,158,11,.5) 40px,rgba(245,158,11,.5) 41px)}
+.auth-hero{position:relative;text-align:center;max-width:380px}
+.auth-hero-icon{font-size:64px;margin-bottom:20px;filter:drop-shadow(0 0 30px rgba(245,158,11,.5))}
+.auth-hero h1{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:12px}
+.auth-hero h1 span{color:var(--accent)}
+.auth-hero p{color:var(--text2);font-size:15px;line-height:1.7}
+.auth-features{display:flex;flex-direction:column;gap:12px;margin-top:36px;text-align:left}
+.auth-feature{display:flex;align-items:center;gap:12px;color:var(--text2);font-size:13px}
+.auth-feature-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.auth-right{width:480px;display:flex;flex-direction:column;justify-content:center;padding:48px 56px;background:var(--surface)}
+.auth-form-header{margin-bottom:32px}
+.auth-form-header h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:6px}
+.auth-form-header p{color:var(--text3);font-size:13px}
+.auth-link{color:var(--accent);cursor:pointer;font-weight:600;font-size:13px;background:none;border:none;font-family:inherit;text-decoration:underline;text-underline-offset:3px}
+/* Loading */
+.spinner{width:20px;height:20px;border:2px solid rgba(245,158,11,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px}
+.loading-screen p{color:var(--text3);font-size:13px}
+/* Dashboard sections */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dash-grid.three{grid-template-columns:1fr 1fr 1fr}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:12px;font-family:'JetBrains Mono',monospace}
+/* Tank indicator */
+.tank-indicator{display:flex;flex-direction:column;gap:8px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px}
+.tank-name{font-size:12px;font-weight:600;color:var(--text)}
+.tank-info{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text3)}
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;gap:12px}
+.empty-state-icon{font-size:48px;opacity:.3}
+.empty-state h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text2)}
+.empty-state p{color:var(--text3);font-size:13px;max-width:300px}
+/* Tabs */
+.tabs{display:flex;gap:4px;padding:4px;background:var(--surface2);border-radius:8px;width:fit-content;margin-bottom:20px}
+.tab{padding:7px 16px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);transition:.15s;font-family:'DM Sans',sans-serif;border:none;background:none}
+.tab.active{background:var(--surface3);color:var(--text)}
+/* Notification dot */
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--red);position:absolute;top:8px;right:8px}
+/* Responsive */
+@media(max-width:768px){
+  .auth-left{display:none}
+  .auth-right{width:100%;padding:32px 24px}
+  .sidebar{position:fixed;left:-220px;transition:.25s;z-index:50}
+  .sidebar.open{left:0}
+  .dash-grid,.dash-grid.three{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  .page-content{padding:16px}
+}
+/* Toast */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;min-width:240px;box-shadow:var(--shadow);animation:slideIn .2s ease;display:flex;align-items:center;gap:10px}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--accent)}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+/* Chip */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--surface3);border-radius:99px;font-size:11px;color:var(--text3)}
+/* Divider */
+.divider{height:1px;background:var(--border);margin:16px 0}
+/* Report card */
+.report-metric{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.report-metric:last-child{border-bottom:none}
+.report-metric-label{font-size:13px;color:var(--text2)}
+.report-metric-value{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, orderBy, Timestamp, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// ============================================================
+// FIREBASE CONFIG — Substitua pelas suas credenciais
+// ============================================================
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// ============================================================
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+// Expose to window for React
+window.__firebase = { auth, db, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, createUserWithEmailAndPassword, onAuthStateChanged, collection, doc, addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, orderBy, Timestamp, onSnapshot, serverTimestamp };
+window.__firebaseReady = true;
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<!-- React & Babel -->
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useContext, createContext, useCallback, useMemo, useRef } = React;
+
+/* ─────────────── CONTEXT ─────────────── */
+const AuthContext = createContext(null);
+const AppContext = createContext(null);
+
+function useAuth() { return useContext(AuthContext); }
+function useApp() { return useContext(AppContext); }
+
+/* ─────────────── FIREBASE HELPERS ─────────────── */
+function fb() { return window.__firebase; }
+
+// ============================================================
+// DATA LAYOUT & HELPERS
+// ============================================================
+const isDemo = () => !firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY";
+
+async function getCompanyData(companyId) {
+  if (isDemo()) {
+    const companies = JSON.parse(localStorage.getItem('demo_companies') || '[]');
+    return companies.find(c => c.id === companyId) || null;
+  }
+  const { db, doc, getDoc } = fb();
+  const snap = await getDoc(doc(db, 'companies', companyId));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+async function getUserProfile(uid) {
+  if (isDemo()) {
+    const users = JSON.parse(localStorage.getItem('demo_users') || '[]');
+    return users.find(u => u.id === uid) || null;
+  }
+  const { db, doc, getDoc } = fb();
+  const snap = await getDoc(doc(db, 'users', uid));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+async function col(path) {
+  if (isDemo()) {
+    return JSON.parse(localStorage.getItem('demo_' + path.replace(/\//g, '_')) || '[]');
+  }
+  const { db, collection, getDocs, query, orderBy } = fb();
+  try {
+    const snap = await getDocs(collection(db, path));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error("Error loading collection:", path, e);
+    return [];
+  }
+}
+
+async function addItem(path, data, companyId, userId, actionLabel) {
+  if (isDemo()) {
+    const list = JSON.parse(localStorage.getItem('demo_' + path.replace(/\//g, '_')) || '[]');
+    const newItem = { ...data, id: 'demo_' + Date.now(), createdAt: new Date() };
+    list.push(newItem);
+    localStorage.setItem('demo_' + path.replace(/\//g, '_'), JSON.stringify(list));
+    if (companyId && actionLabel) await logAudit(companyId, userId, actionLabel, data);
+    return newItem;
+  }
+  const { db, collection, addDoc, serverTimestamp } = fb();
+  const res = await addDoc(collection(db, path), { ...data, createdAt: serverTimestamp() });
+  if (companyId && actionLabel) await logAudit(companyId, userId, actionLabel, data);
+  return res;
+}
+
+async function updateItem(path, data, companyId, userId, actionLabel) {
+  if (isDemo()) {
+    const parts = path.split('/');
+    const id = parts.pop();
+    const collPath = parts.join('_');
+    const list = JSON.parse(localStorage.getItem('demo_companies_' + collPath) || '[]');
+    const idx = list.findIndex(x => x.id === id);
+    if (idx > -1) {
+      list[idx] = { ...list[idx], ...data, updatedAt: new Date() };
+      localStorage.setItem('demo_companies_' + collPath, JSON.stringify(list));
+    }
+    if (companyId && actionLabel) await logAudit(companyId, userId, actionLabel, data);
+    return;
+  }
+  const { db, doc, updateDoc, serverTimestamp } = fb();
+  await updateDoc(doc(db, path), { ...data, updatedAt: serverTimestamp() });
+  if (companyId && actionLabel) await logAudit(companyId, userId, actionLabel, data);
+}
+
+async function deleteItem(path, companyId, userId, actionLabel) {
+  if (isDemo()) {
+    const parts = path.split('/');
+    const id = parts.pop();
+    const collPath = parts.join('_');
+    let list = JSON.parse(localStorage.getItem('demo_companies_' + collPath) || '[]');
+    list = list.filter(x => x.id !== id);
+    localStorage.setItem('demo_companies_' + collPath, JSON.stringify(list));
+    if (companyId && actionLabel) await logAudit(companyId, userId, actionLabel, { deletedId: id });
+    return;
+  }
+  const { db, doc, deleteDoc } = fb();
+  await deleteDoc(doc(db, path));
+  if (companyId && actionLabel) await logAudit(companyId, userId, actionLabel, { deletedId: path });
+}
+
+async function logAudit(companyId, userId, action, details) {
+  try {
+    const data = { userId, action, details, timestamp: new Date() };
+    if (isDemo()) {
+      const list = JSON.parse(localStorage.getItem(`demo_companies_${companyId}_audit`) || '[]');
+      list.push({ ...data, id: 'log_' + Date.now() });
+      localStorage.setItem(`demo_companies_${companyId}_audit`, JSON.stringify(list));
+      return;
+    }
+    const { db, collection, addDoc, serverTimestamp } = fb();
+    await addDoc(collection(db, `companies/${companyId}/audit`), { ...data, timestamp: serverTimestamp() });
+  } catch (e) { console.warn("Audit log failed", e); }
+}
+
+/* ─────────────── TOAST ─────────────── */
+let toastFn = null;
+function toast(msg, type = 'info') { toastFn && toastFn(msg, type); }
+
+function Toasts() {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    toastFn = (msg, type) => {
+      const id = Date.now();
+      setItems(p => [...p, { id, msg, type }]);
+      setTimeout(() => setItems(p => p.filter(x => x.id !== id)), 3500);
+    };
+  }, []);
+  const icons = { success: '✓', error: '✕', info: 'ⓘ' };
+  return (
+    <div className="toasts">
+      {items.map(t => (
+        <div key={t.id} className={`toast ${t.type}`}>
+          <span>{icons[t.type]}</span> {t.msg}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────── ICONS ─────────────── */
+const icons = {
+  dashboard: '⊞', companies: '🏢', stations: '⛽', tanks: '🛢', pumps: '⚙',
+  sales: '💳', receipts: '📦', stock: '📊', reports: '📋', users: '👥',
+  logout: '⏏', edit: '✏', delete: '🗑', add: '＋', close: '✕',
+  fuel: '⛽', alert: '⚠', check: '✓', arrow: '→', back: '←',
+  settings: '⚙', audit: '📜', diff: '⚖'
+};
+
+/* ─────────────── AUTH PAGE ─────────────── */
+function AuthPage() {
+  const [mode, setMode] = useState('login'); // login | reset
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setError(''); setLoading(true);
+    if (isDemo()) {
+      // Create demo user if not exists
+      const demoUser = { id: 'demo_user', name: 'Gestor Demo', email: email, role: 'admin', companyId: 'demo_comp' };
+      localStorage.setItem('demo_users', JSON.stringify([demoUser]));
+      localStorage.setItem('demo_companies', JSON.stringify([{ id: 'demo_comp', name: 'Empresa Demo Lda', nif: '123456789', active: true }]));
+      localStorage.setItem('demo_auth', JSON.stringify(demoUser));
+      window.dispatchEvent(new Event('demo-auth-changed'));
+      setLoading(false);
+      return;
+    }
+    try {
+      const { auth, signInWithEmailAndPassword } = fb();
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      const msgs = {
+        'auth/user-not-found': 'Utilizador não encontrado.',
+        'auth/wrong-password': 'Senha incorreta.',
+        'auth/invalid-credential': 'Credenciais inválidas.',
+        'auth/too-many-requests': 'Muitas tentativas. Tente mais tarde.',
+      };
+      setError(msgs[err.code] || 'Erro de autenticação.');
+    }
+    setLoading(false);
+  }
+
+  async function handleReset(e) {
+    e.preventDefault();
+    setError(''); setLoading(true);
+    try {
+      const { auth, sendPasswordResetEmail } = fb();
+      await sendPasswordResetEmail(auth, email);
+      setSuccess('Email de recuperação enviado!');
+    } catch { setError('Erro ao enviar email. Verifique o endereço.'); }
+    setLoading(false);
+  }
+
+  return (
+    <div className="auth-page">
+      <div className="auth-left">
+        <div className="auth-bg-pattern"/>
+        <div className="auth-hero">
+          <div className="auth-hero-icon">⛽</div>
+          <h1>Fuel<span>gest</span>Angola</h1>
+          <p>Plataforma profissional de gestão de postos de abastecimento de combustível em Angola</p>
+          <div className="auth-features">
+            {['Multi-empresa e multi-posto', 'Controlo de stocks em tempo real', 'Relatórios e dashboards avançados', 'Gestão de vendas e recepções', 'Segurança e isolamento de dados'].map(f => (
+              <div key={f} className="auth-feature">
+                <div className="auth-feature-dot"/>
+                {f}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="auth-right">
+        <div className="auth-form-header">
+          <h2>{mode === 'login' ? 'Bem-vindo de volta' : 'Recuperar senha'}</h2>
+          <p>{mode === 'login' ? 'Aceda à sua conta para continuar' : 'Insira o seu email para recuperar a senha'}</p>
+        </div>
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+        <form onSubmit={mode === 'login' ? handleLogin : handleReset} className="form-grid">
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input className="form-input" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="email@empresa.ao"/>
+          </div>
+          {mode === 'login' && (
+            <div className="form-group">
+              <label className="form-label">Senha</label>
+              <input className="form-input" type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••"/>
+            </div>
+          )}
+          <button className="btn btn-primary" type="submit" disabled={loading} style={{marginTop:8}}>
+            {loading ? <><span className="spinner"/> A processar...</> : (mode === 'login' ? 'Entrar' : 'Enviar email')}
+          </button>
+        </form>
+        <div style={{marginTop:20,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          {mode === 'login'
+            ? <button className="auth-link" onClick={() => setMode('reset')}>Esqueci a senha</button>
+            : <button className="auth-link" onClick={() => setMode('login')}>{icons.back} Voltar ao login</button>
+          }
+        </div>
+        <div className="divider"/>
+        <p style={{fontSize:11,color:'var(--text3)',textAlign:'center'}}>FuelgestAngola v2.0 · Dados isolados por empresa · Conformidade ANPG</p>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── SIDEBAR ─────────────── */
+function Sidebar({ currentPage, navigate, user, profile, company }) {
+  const { signOutUser } = useApp();
+
+  const navGroups = [
+    { label: 'Principal', items: [
+      { id: 'dashboard', label: 'Dashboard', icon: icons.dashboard },
+    ]},
+    { label: 'Operações', items: [
+      { id: 'sales', label: 'Vendas', icon: icons.sales },
+      { id: 'receipts', label: 'Recepção', icon: icons.receipts },
+      { id: 'stock', label: 'Estoque', icon: icons.stock },
+      { id: 'differences', label: 'Diferenças', icon: icons.diff },
+    ]},
+    { label: 'Gestão', items: [
+      { id: 'stations', label: 'Postos', icon: icons.stations },
+      { id: 'tanks', label: 'Tanques', icon: icons.tanks },
+      { id: 'pumps', label: 'Bombas', icon: icons.pumps },
+    ]},
+    { label: 'Análise', items: [
+      { id: 'reports', label: 'Relatórios', icon: icons.reports },
+    ]},
+    ...(profile?.role === 'admin' ? [{ label: 'Administração', items: [
+      { id: 'companies', label: 'Empresas', icon: icons.companies },
+      { id: 'users', label: 'Utilizadores', icon: icons.users },
+      { id: 'audit', label: 'Auditoria', icon: icons.audit },
+    ]}] : []),
+    { label: 'Sistema', items: [
+      { id: 'settings', label: 'Definições', icon: icons.settings },
+    ]},
+  ];
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <div className="logo-mark">
+          <div className="logo-icon">⛽</div>
+          <div>
+            <div className="logo-text">FuelgestAngola</div>
+            <div className="logo-sub">v2.0 SaaS</div>
+          </div>
+        </div>
+      </div>
+      {company && (
+        <div className="company-selector">
+          <div style={{fontSize:10,color:'var(--text3)',marginBottom:4,fontFamily:'JetBrains Mono,monospace',textTransform:'uppercase',letterSpacing:'.08em'}}>Empresa Activa</div>
+          <div style={{fontSize:13,fontWeight:600,color:'var(--accent)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{company.name}</div>
+          <div style={{fontSize:11,color:'var(--text3)'}}>{company.nif}</div>
+        </div>
+      )}
+      <nav className="sidebar-nav">
+        {navGroups.map(grp => (
+          <div key={grp.label} className="nav-group">
+            <div className="nav-group-label">{grp.label}</div>
+            {grp.items.map(item => (
+              <div key={item.id} className={`nav-item ${currentPage === item.id ? 'active' : ''}`} onClick={() => navigate(item.id)}>
+                <span style={{fontSize:16}}>{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </nav>
+      <div className="sidebar-footer">
+        <div className="user-chip" onClick={signOutUser}>
+          <div className="user-avatar">{user?.email?.[0]?.toUpperCase()}</div>
+          <div className="user-info">
+            <div className="user-name">{user?.email?.split('@')[0]}</div>
+            <div className="user-role">{profile?.role || 'operator'}</div>
+          </div>
+          <span style={{fontSize:14,color:'var(--text3)'}}>{icons.logout}</span>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ─────────────── MODAL ─────────────── */
+function Modal({ title, open, onClose, children, footer }) {
+  if (!open) return null;
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <h3 className="modal-title">{title}</h3>
+          <button className="btn btn-ghost btn-icon" onClick={onClose}>{icons.close}</button>
+        </div>
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-footer">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── CONFIRM MODAL ─────────────── */
+function Confirm({ open, onClose, onConfirm, title, message }) {
+  return (
+    <Modal title={title || 'Confirmar'} open={open} onClose={onClose}
+      footer={<><button className="btn btn-ghost" onClick={onClose}>Cancelar</button><button className="btn btn-danger" onClick={() => { onConfirm(); onClose(); }}>Confirmar</button></>}>
+      <p style={{color:'var(--text2)'}}>{message}</p>
+    </Modal>
+  );
+}
+
+/* ─────────────── DASHBOARD ─────────────── */
+function Dashboard({ company, stations }) {
+  const [stats, setStats] = useState({ salesDay: 0, salesTotal: 0, tanksLow: 0, receiptsDay: 0 });
+  const [recentSales, setRecentSales] = useState([]);
+  const [tanks, setTanks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!company || stations.length === 0) { setLoading(false); return; }
+    loadData();
+  }, [company, stations]);
+
+  async function loadData() {
+    setLoading(true);
+    try {
+      const today = new Date(); today.setHours(0,0,0,0);
+      let salesDay = 0, salesTotal = 0, receiptsDay = 0, allSales = [], allTanks = [];
+
+      for (const st of stations) {
+        const base = `companies/${company.id}/stations/${st.id}`;
+        // Sales
+        const salesData = await col(`${base}/sales`);
+        salesData.forEach(s => {
+          salesTotal += (s.total || 0);
+          const sDate = s.date?.toDate ? s.date.toDate() : new Date(s.date);
+          if (sDate >= today) salesDay += (s.total || 0);
+          allSales.push({ ...s, stationName: st.name });
+        });
+        // Tanks
+        const tanksData = await col(`${base}/tanks`);
+        tanksData.forEach(t => allTanks.push({ ...t, stationName: st.name }));
+        // Receipts
+        const receiptsData = await col(`${base}/fuelReceipts`);
+        receiptsData.forEach(r => {
+          const rDate = r.date?.toDate ? r.date.toDate() : new Date(r.date);
+          if (rDate >= today) receiptsDay++;
+        });
+      }
+      const tanksLow = allTanks.filter(t => t.capacity > 0 && (t.volume / t.capacity) < 0.2).length;
+      allSales.sort((a, b) => {
+        const da = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+        const db_ = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+        return db_ - da;
+      });
+      setStats({ salesDay, salesTotal, tanksLow, receiptsDay });
+      setRecentSales(allSales.slice(0, 8));
+      setTanks(allTanks);
+    } catch(e) { console.error(e); }
+    setLoading(false);
+  }
+
+  if (loading) return <div className="loading-screen"><div className="spinner"/><p>A carregar dashboard...</p></div>;
+
+  const fmt = v => v?.toLocaleString('pt-AO', { minimumFractionDigits: 2 }) || '0,00';
+  const fmtDate = d => { try { const dt = d?.toDate ? d.toDate() : new Date(d); return dt.toLocaleDateString('pt-AO'); } catch { return '—'; }};
+
+  return (
+    <div className="page-content">
+      <div className="stats-grid">
+        <div className="stat-card amber">
+          <div className="stat-label">Vendas Hoje</div>
+          <div className="stat-value amber">AOA {fmt(stats.salesDay)}</div>
+          <div className="stat-sub">Valor total do dia</div>
+        </div>
+        <div className="stat-card green">
+          <div className="stat-label">Vendas Total</div>
+          <div className="stat-value green">AOA {fmt(stats.salesTotal)}</div>
+          <div className="stat-sub">Acumulado</div>
+        </div>
+        <div className="stat-card blue">
+          <div className="stat-label">Postos Ativos</div>
+          <div className="stat-value blue">{stations.length}</div>
+          <div className="stat-sub">Postos registados</div>
+        </div>
+        <div className="stat-card" style={{borderColor: stats.tanksLow > 0 ? 'rgba(239,68,68,.3)' : 'var(--border)'}}>
+          <div className="stat-label">Alertas Stock</div>
+          <div className={`stat-value ${stats.tanksLow > 0 ? 'red' : 'green'}`}>{stats.tanksLow}</div>
+          <div className="stat-sub">Tanques com stock baixo (&lt;20%)</div>
+        </div>
+      </div>
+
+      <div className="dash-grid" style={{marginBottom:20}}>
+        {/* Tanks status */}
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">🛢 Estado dos Tanques</span>
+          </div>
+          {tanks.length === 0 ? <div className="empty-state"><div className="empty-state-icon">🛢</div><p>Nenhum tanque encontrado</p></div> : (
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              {tanks.map(t => {
+                const pct = t.capacity > 0 ? Math.min(100, (t.volume / t.capacity) * 100) : 0;
+                const color = pct < 20 ? 'red' : pct < 50 ? 'amber' : 'green';
+                return (
+                  <div key={t.id} className="tank-indicator">
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <div className="tank-name">{t.product} — {t.stationName}</div>
+                      <span className={`badge badge-${color === 'amber' ? 'amber' : color === 'red' ? 'red' : 'green'}`}>{pct.toFixed(0)}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div className={`progress-fill ${color}`} style={{width:`${pct}%`}}/>
+                    </div>
+                    <div className="tank-info">
+                      <span>{t.volume?.toLocaleString()} L restantes</span>
+                      <span>Cap: {t.capacity?.toLocaleString()} L</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Recent sales */}
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">💳 Últimas Vendas</span>
+          </div>
+          {recentSales.length === 0 ? <div className="empty-state"><div className="empty-state-icon">💳</div><p>Nenhuma venda registada</p></div> : (
+            <div className="table-wrap" style={{border:'none'}}>
+              <table>
+                <thead><tr><th>Posto</th><th>Litros</th><th>Total</th><th>Data</th></tr></thead>
+                <tbody>
+                  {recentSales.map(s => (
+                    <tr key={s.id}>
+                      <td><span className="chip">{s.stationName}</span></td>
+                      <td className="td-mono">{s.liters?.toFixed(2)} L</td>
+                      <td className="td-mono" style={{color:'var(--accent)'}}>{fmt(s.total)}</td>
+                      <td style={{color:'var(--text3)',fontSize:11}}>{fmtDate(s.date)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Alerts */}
+      {stats.tanksLow > 0 && (
+        <div className="alert alert-warn">
+          {icons.alert} <strong>{stats.tanksLow} tanque(s) com stock crítico</strong> — Nível abaixo de 20%. Considere efectuar uma recepção de combustível.
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────── COMPANIES PAGE ─────────────── */
+function CompaniesPage() {
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ name:'', nif:'', email:'', phone:'', address:'', active:true });
+
+  useEffect(() => { loadCompanies(); }, []);
+
+  async function loadCompanies() {
+    setLoading(true);
+    try { setCompanies(await col('companies')); } catch {}
+    setLoading(false);
+  }
+
+  function openCreate() { setEditing(null); setForm({ name:'', nif:'', email:'', phone:'', address:'', active:true }); setModal(true); }
+  function openEdit(c) { setEditing(c); setForm({ name:c.name||'', nif:c.nif||'', email:c.email||'', phone:c.phone||'', address:c.address||'', active:c.active!==false }); setModal(true); }
+
+  async function save() {
+    try {
+      if (editing) {
+        await updateItem(`companies/${editing.id}`, form, editing.id, 'admin', 'Actualização de Empresa');
+        toast('Empresa actualizada', 'success');
+      } else {
+        await addItem('companies', form, 'admin', 'admin', 'Criação de Empresa');
+        toast('Empresa criada', 'success');
+      }
+      setModal(false); loadCompanies();
+    } catch { toast('Erro ao guardar', 'error'); }
+  }
+
+  async function remove(id) {
+    try { await deleteItem(`companies/${id}`, 'admin', 'admin', 'Eliminação de Empresa'); toast('Empresa eliminada', 'success'); loadCompanies(); } catch { toast('Erro', 'error'); }
+  }
+
+  async function toggleActive(c) {
+    try { await updateItem(`companies/${c.id}`, { active: !c.active }); loadCompanies(); } catch {}
+  }
+
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div>
+          <div className="section-label">Administração</div>
+          <h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Gestão de Empresas</h2>
+        </div>
+        <button className="btn btn-primary" onClick={openCreate}>{icons.add} Nova Empresa</button>
+      </div>
+
+      {loading ? <div className="loading-screen"><div className="spinner"/></div> : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Empresa</th><th>NIF</th><th>Email</th><th>Contacto</th><th>Estado</th><th>Acções</th></tr></thead>
+            <tbody>
+              {companies.length === 0 ? (
+                <tr><td colSpan={6}><div className="empty-state"><div className="empty-state-icon">🏢</div><h3>Nenhuma empresa</h3><p>Crie a primeira empresa para começar</p></div></td></tr>
+              ) : companies.map(c => (
+                <tr key={c.id}>
+                  <td><strong>{c.name}</strong><br/><span style={{fontSize:11,color:'var(--text3)'}}>ID: {c.id}</span></td>
+                  <td className="td-mono">{c.nif}</td>
+                  <td>{c.email}</td>
+                  <td>{c.phone}</td>
+                  <td><span className={`badge badge-${c.active !== false ? 'green' : 'red'}`}>{c.active !== false ? 'Activa' : 'Inactiva'}</span></td>
+                  <td>
+                    <div style={{display:'flex',gap:6}}>
+                      <button className="btn btn-ghost btn-xs" onClick={() => openEdit(c)}>{icons.edit}</button>
+                      <button className="btn btn-ghost btn-xs" onClick={() => toggleActive(c)}>{c.active !== false ? '⏸' : '▶'}</button>
+                      <button className="btn btn-danger btn-xs" onClick={() => setConfirm({ id: c.id, name: c.name })}>{icons.delete}</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal title={editing ? 'Editar Empresa' : 'Nova Empresa'} open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={save}>Guardar</button></>}>
+        <div className="form-grid">
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Nome da Empresa *</label><input className="form-input" value={form.name} onChange={e => f('name', e.target.value)} placeholder="Ex: PetroAngola Lda"/></div>
+            <div className="form-group"><label className="form-label">NIF</label><input className="form-input" value={form.nif} onChange={e => f('nif', e.target.value)} placeholder="000000000"/></div>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" value={form.email} onChange={e => f('email', e.target.value)} placeholder="geral@empresa.ao"/></div>
+            <div className="form-group"><label className="form-label">Telefone</label><input className="form-input" value={form.phone} onChange={e => f('phone', e.target.value)} placeholder="+244 9xx xxx xxx"/></div>
+          </div>
+          <div className="form-group"><label className="form-label">Endereço</label><input className="form-input" value={form.address} onChange={e => f('address', e.target.value)} placeholder="Rua, Município, Província"/></div>
+          <div className="form-group" style={{flexDirection:'row',alignItems:'center',gap:12}}>
+            <input type="checkbox" id="act" checked={form.active} onChange={e => f('active', e.target.checked)} style={{width:16,height:16,accentColor:'var(--accent)'}}/>
+            <label htmlFor="act" className="form-label" style={{margin:0}}>Empresa activa</label>
+          </div>
+        </div>
+      </Modal>
+
+      <Confirm open={!!confirm} onClose={() => setConfirm(null)} onConfirm={() => remove(confirm?.id)} title="Eliminar Empresa" message={`Tem a certeza que deseja eliminar a empresa "${confirm?.name}"? Esta acção não pode ser desfeita.`}/>
+    </div>
+  );
+}
+
+/* ─────────────── STATIONS PAGE ─────────────── */
+function StationsPage({ company, stations, reloadStations }) {
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ name:'', location:'', municipality:'', province:'', contact:'' });
+
+  function openCreate() { setEditing(null); setForm({ name:'', location:'', municipality:'', province:'', contact:'' }); setModal(true); }
+  function openEdit(s) { setEditing(s); setForm({ name:s.name||'', location:s.location||'', municipality:s.municipality||'', province:s.province||'', contact:s.contact||'' }); setModal(true); }
+
+  async function save() {
+    if (!company) return;
+    try {
+      const base = `companies/${company.id}/stations`;
+      if (editing) {
+        await updateItem(`${base}/${editing.id}`, form, company.id, 'user', `Actualização de Posto: ${form.name}`);
+        toast('Posto actualizado', 'success');
+      } else {
+        await addItem(base, form, company.id, 'user', `Criação de Posto: ${form.name}`);
+        toast('Posto criado', 'success');
+      }
+      setModal(false); reloadStations();
+    } catch { toast('Erro ao guardar', 'error'); }
+  }
+
+  async function remove(id) {
+    try {
+      await deleteItem(`companies/${company.id}/stations/${id}`);
+      toast('Posto eliminado', 'success'); reloadStations();
+    } catch { toast('Erro', 'error'); }
+  }
+
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const provinces = ['Luanda','Benguela','Huíla','Malanje','Huambo','Cabinda','Moxico','Bié','Namibe','Cuando Cubango','Cunene','Lunda Norte','Lunda Sul','Bengo','Cuanza Norte','Cuanza Sul','Uíge','Zaire'];
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div>
+          <div className="section-label">{company?.name}</div>
+          <h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Postos de Abastecimento</h2>
+        </div>
+        {company && <button className="btn btn-primary" onClick={openCreate}>{icons.add} Novo Posto</button>}
+      </div>
+
+      {!company ? <div className="alert alert-warn">Selecione uma empresa para gerir postos</div> : (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16}}>
+          {stations.length === 0 && <div className="empty-state" style={{gridColumn:'1/-1'}}><div className="empty-state-icon">⛽</div><h3>Nenhum posto</h3><p>Crie o primeiro posto de abastecimento</p></div>}
+          {stations.map(s => (
+            <div key={s.id} className="card" style={{position:'relative'}}>
+              <div style={{fontSize:32,marginBottom:12}}>⛽</div>
+              <h3 style={{fontFamily:'Syne,sans-serif',fontSize:16,fontWeight:700,marginBottom:6}}>{s.name}</h3>
+              <div style={{color:'var(--text2)',fontSize:13,marginBottom:4}}>📍 {s.location}</div>
+              {s.municipality && <div className="chip" style={{marginBottom:10}}>{s.municipality}, {s.province}</div>}
+              {s.contact && <div style={{fontSize:12,color:'var(--text3)'}}>📞 {s.contact}</div>}
+              <div style={{display:'flex',gap:8,marginTop:16}}>
+                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(s)}>{icons.edit} Editar</button>
+                <button className="btn btn-danger btn-sm" onClick={() => setConfirm({ id: s.id, name: s.name })}>{icons.delete}</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Modal title={editing ? 'Editar Posto' : 'Novo Posto'} open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={save}>Guardar</button></>}>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Nome do Posto *</label><input className="form-input" value={form.name} onChange={e => f('name', e.target.value)} placeholder="Ex: Posto Viana Central"/></div>
+          <div className="form-group"><label className="form-label">Localização / Endereço</label><input className="form-input" value={form.location} onChange={e => f('location', e.target.value)} placeholder="Rua, Bairro"/></div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Município</label><input className="form-input" value={form.municipality} onChange={e => f('municipality', e.target.value)} placeholder="Ex: Viana"/></div>
+            <div className="form-group"><label className="form-label">Província</label>
+              <select className="form-select" value={form.province} onChange={e => f('province', e.target.value)}>
+                <option value="">Selecionar...</option>
+                {provinces.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="form-group"><label className="form-label">Contacto</label><input className="form-input" value={form.contact} onChange={e => f('contact', e.target.value)} placeholder="+244 9xx xxx xxx"/></div>
+        </div>
+      </Modal>
+
+      <Confirm open={!!confirm} onClose={() => setConfirm(null)} onConfirm={() => remove(confirm?.id)} title="Eliminar Posto" message={`Eliminar o posto "${confirm?.name}"? Todos os dados associados serão perdidos.`}/>
+    </div>
+  );
+}
+
+/* ─────────────── TANKS PAGE ─────────────── */
+function TanksPage({ company, stations }) {
+  const [selectedStation, setSelectedStation] = useState('');
+  const [tanks, setTanks] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ product:'', capacity:'', volume:'' });
+
+  const products = ['Gasolina 91', 'Gasolina 95', 'Gasóleo', 'Gasóleo 50ppm', 'Jet A1', 'Gasolina Premium'];
+
+  useEffect(() => { if (selectedStation) loadTanks(); }, [selectedStation]);
+
+  async function loadTanks() {
+    if (!company || !selectedStation) return;
+    const data = await col(`companies/${company.id}/stations/${selectedStation}/tanks`);
+    setTanks(data);
+  }
+
+  function openCreate() { setEditing(null); setForm({ product:'', capacity:'', volume:'' }); setModal(true); }
+  function openEdit(t) { setEditing(t); setForm({ product:t.product||'', capacity:t.capacity||'', volume:t.volume||'' }); setModal(true); }
+
+  async function save() {
+    if (!company || !selectedStation) return;
+    try {
+      const base = `companies/${company.id}/stations/${selectedStation}/tanks`;
+      const data = { ...form, capacity: parseFloat(form.capacity) || 0, volume: parseFloat(form.volume) || 0 };
+      if (editing) {
+        await updateItem(`${base}/${editing.id}`, data, company.id, 'user', `Actualização de Tanque: ${form.product}`);
+        toast('Tanque actualizado', 'success');
+      } else {
+        await addItem(base, data, company.id, 'user', `Criação de Tanque: ${form.product}`);
+        toast('Tanque criado', 'success');
+      }
+      setModal(false); loadTanks();
+    } catch { toast('Erro', 'error'); }
+  }
+
+  async function remove(id) {
+    await deleteItem(`companies/${company.id}/stations/${selectedStation}/tanks/${id}`);
+    toast('Tanque eliminado', 'success'); loadTanks();
+  }
+
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div>
+          <div className="section-label">Gestão</div>
+          <h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Tanques</h2>
+        </div>
+        {selectedStation && <button className="btn btn-primary" onClick={openCreate}>{icons.add} Novo Tanque</button>}
+      </div>
+
+      <div className="form-group" style={{maxWidth:280,marginBottom:20}}>
+        <label className="form-label">Posto</label>
+        <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+          <option value="">Selecionar posto...</option>
+          {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </div>
+
+      {!selectedStation ? <div className="empty-state"><div className="empty-state-icon">🛢</div><h3>Selecione um posto</h3></div> : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Produto</th><th>Capacidade (L)</th><th>Volume Actual (L)</th><th>% Cheio</th><th>Estado</th><th>Acções</th></tr></thead>
+            <tbody>
+              {tanks.length === 0 ? <tr><td colSpan={6}><div className="empty-state"><div className="empty-state-icon">🛢</div><p>Nenhum tanque</p></div></td></tr> : tanks.map(t => {
+                const pct = t.capacity > 0 ? (t.volume / t.capacity) * 100 : 0;
+                const color = pct < 20 ? 'red' : pct < 50 ? 'amber' : 'green';
+                return (
+                  <tr key={t.id}>
+                    <td><strong>{t.product}</strong></td>
+                    <td className="td-mono">{t.capacity?.toLocaleString()} L</td>
+                    <td className="td-mono">{t.volume?.toLocaleString()} L</td>
+                    <td>
+                      <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <div className="progress-bar" style={{width:80}}><div className={`progress-fill ${color}`} style={{width:`${Math.min(100,pct)}%`}}/></div>
+                        <span style={{fontSize:12,fontFamily:'JetBrains Mono,monospace'}}>{pct.toFixed(1)}%</span>
+                      </div>
+                    </td>
+                    <td><span className={`badge badge-${color === 'amber' ? 'amber' : color === 'red' ? 'red' : 'green'}`}>{pct < 20 ? 'Crítico' : pct < 50 ? 'Baixo' : 'Normal'}</span></td>
+                    <td><div style={{display:'flex',gap:6}}>
+                      <button className="btn btn-ghost btn-xs" onClick={() => openEdit(t)}>{icons.edit}</button>
+                      <button className="btn btn-danger btn-xs" onClick={() => setConfirm({ id: t.id, name: t.product })}>{icons.delete}</button>
+                    </div></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal title={editing ? 'Editar Tanque' : 'Novo Tanque'} open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={save}>Guardar</button></>}>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Produto *</label>
+            <select className="form-select" value={form.product} onChange={e => f('product', e.target.value)}>
+              <option value="">Selecionar produto...</option>
+              {products.map(p => <option key={p}>{p}</option>)}
+            </select>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Capacidade (L) *</label><input className="form-input" type="number" value={form.capacity} onChange={e => f('capacity', e.target.value)} placeholder="Ex: 50000"/></div>
+            <div className="form-group"><label className="form-label">Volume Actual (L)</label><input className="form-input" type="number" value={form.volume} onChange={e => f('volume', e.target.value)} placeholder="Ex: 30000"/></div>
+          </div>
+        </div>
+      </Modal>
+
+      <Confirm open={!!confirm} onClose={() => setConfirm(null)} onConfirm={() => remove(confirm?.id)} title="Eliminar Tanque" message={`Eliminar tanque "${confirm?.name}"?`}/>
+    </div>
+  );
+}
+
+/* ─────────────── PUMPS PAGE ─────────────── */
+function PumpsPage({ company, stations }) {
+  const [selectedStation, setSelectedStation] = useState('');
+  const [pumps, setPumps] = useState([]);
+  const [tanks, setTanks] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ number:'', tankId:'' });
+
+  useEffect(() => { if (selectedStation) { loadPumps(); loadTanks(); } }, [selectedStation]);
+
+  async function loadPumps() {
+    const data = await col(`companies/${company.id}/stations/${selectedStation}/pumps`);
+    setPumps(data);
+  }
+  async function loadTanks() {
+    const data = await col(`companies/${company.id}/stations/${selectedStation}/tanks`);
+    setTanks(data);
+  }
+
+  function openCreate() { setEditing(null); setForm({ number:'', tankId:'' }); setModal(true); }
+  function openEdit(p) { setEditing(p); setForm({ number:p.number||'', tankId:p.tankId||'' }); setModal(true); }
+
+  async function save() {
+    const base = `companies/${company.id}/stations/${selectedStation}/pumps`;
+    try {
+      if (editing) { await updateItem(`${base}/${editing.id}`, form, company.id, 'user', `Actualização de Bomba #${form.number}`); toast('Bomba actualizada', 'success'); }
+      else { await addItem(base, form, company.id, 'user', `Criação de Bomba #${form.number}`); toast('Bomba criada', 'success'); }
+      setModal(false); loadPumps();
+    } catch { toast('Erro', 'error'); }
+  }
+
+  async function remove(id) {
+    await deleteItem(`companies/${company.id}/stations/${selectedStation}/pumps/${id}`);
+    toast('Bomba eliminada', 'success'); loadPumps();
+  }
+
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const getTankName = id => tanks.find(t => t.id === id)?.product || 'N/D';
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div><div className="section-label">Gestão</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Bombas</h2></div>
+        {selectedStation && <button className="btn btn-primary" onClick={openCreate}>{icons.add} Nova Bomba</button>}
+      </div>
+
+      <div className="form-group" style={{maxWidth:280,marginBottom:20}}>
+        <label className="form-label">Posto</label>
+        <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+          <option value="">Selecionar posto...</option>
+          {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </div>
+
+      {selectedStation ? (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Nº Bomba</th><th>Tanque Associado</th><th>Produto</th><th>Acções</th></tr></thead>
+            <tbody>
+              {pumps.length === 0 ? <tr><td colSpan={4}><div className="empty-state"><div className="empty-state-icon">⚙</div><p>Nenhuma bomba</p></div></td></tr> : pumps.map(p => (
+                <tr key={p.id}>
+                  <td><strong style={{fontFamily:'JetBrains Mono,monospace',fontSize:16}}>#{p.number}</strong></td>
+                  <td><span className="chip">{p.tankId}</span></td>
+                  <td><span className="badge badge-amber">{getTankName(p.tankId)}</span></td>
+                  <td><div style={{display:'flex',gap:6}}>
+                    <button className="btn btn-ghost btn-xs" onClick={() => openEdit(p)}>{icons.edit}</button>
+                    <button className="btn btn-danger btn-xs" onClick={() => setConfirm({ id: p.id, name: `Bomba #${p.number}` })}>{icons.delete}</button>
+                  </div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : <div className="empty-state"><div className="empty-state-icon">⚙</div><h3>Selecione um posto</h3></div>}
+
+      <Modal title={editing ? 'Editar Bomba' : 'Nova Bomba'} open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={save}>Guardar</button></>}>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Número da Bomba *</label><input className="form-input" type="number" value={form.number} onChange={e => f('number', e.target.value)} placeholder="Ex: 1"/></div>
+          <div className="form-group"><label className="form-label">Tanque Associado *</label>
+            <select className="form-select" value={form.tankId} onChange={e => f('tankId', e.target.value)}>
+              <option value="">Selecionar tanque...</option>
+              {tanks.map(t => <option key={t.id} value={t.id}>{t.product} (Cap: {t.capacity?.toLocaleString()} L)</option>)}
+            </select>
+          </div>
+        </div>
+      </Modal>
+
+      <Confirm open={!!confirm} onClose={() => setConfirm(null)} onConfirm={() => remove(confirm?.id)} title="Eliminar Bomba" message={`Eliminar "${confirm?.name}"?`}/>
+    </div>
+  );
+}
+
+/* ─────────────── SALES PAGE ─────────────── */
+function SalesPage({ company, stations }) {
+  const [selectedStation, setSelectedStation] = useState('');
+  const [sales, setSales] = useState([]);
+  const [pumps, setPumps] = useState([]);
+  const [tanks, setTanks] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [form, setForm] = useState({ pumpId:'', liters:'', readingInit:'', readingEnd:'', pricePerLiter:'300', paymentMethod:'Numerário', date:'' });
+  const [dateFilter, setDateFilter] = useState('');
+
+  useEffect(() => {
+    if (form.readingInit && form.readingEnd) {
+      const l = parseFloat(form.readingEnd) - parseFloat(form.readingInit);
+      if (l >= 0) f('liters', l.toFixed(2));
+    }
+  }, [form.readingInit, form.readingEnd]);
+
+  useEffect(() => { if (selectedStation) { loadSales(); loadPumps(); loadTanks(); } }, [selectedStation]);
+
+  async function loadSales() {
+    const data = await col(`companies/${company.id}/stations/${selectedStation}/sales`);
+    data.sort((a,b) => {
+      const da = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+      const db_ = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+      return db_ - da;
+    });
+    setSales(data);
+  }
+  async function loadPumps() { setPumps(await col(`companies/${company.id}/stations/${selectedStation}/pumps`)); }
+  async function loadTanks() { setTanks(await col(`companies/${company.id}/stations/${selectedStation}/tanks`)); }
+
+  async function save() {
+    try {
+      const liters = parseFloat(form.liters) || 0;
+      const price = parseFloat(form.pricePerLiter) || 0;
+      const total = liters * price;
+      const saleData = { pumpId: form.pumpId, liters, pricePerLiter: price, total, paymentMethod: form.paymentMethod, date: form.date ? new Date(form.date) : new Date() };
+      
+      // Update tank volume
+      const pump = pumps.find(p => p.id === form.pumpId);
+      if (pump) {
+        const tank = tanks.find(t => t.id === pump.tankId);
+        if (tank) {
+          const newVol = Math.max(0, (tank.volume || 0) - liters);
+          await updateItem(`companies/${company.id}/stations/${selectedStation}/tanks/${tank.id}`, { volume: newVol });
+          // Stock exit
+          await addItem(`companies/${company.id}/stations/${selectedStation}/stock`, { type:'exit', product: tank.product, quantity: liters, reference:`Venda`, date: new Date() });
+        }
+      }
+
+      await addItem(`companies/${company.id}/stations/${selectedStation}/sales`, saleData, company.id, 'user', `Venda registada: ${liters}L`);
+      toast('Venda registada com sucesso', 'success');
+      setModal(false);
+      loadSales(); loadTanks();
+    } catch(e) { console.error(e); toast('Erro ao registar venda', 'error'); }
+  }
+
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const getPumpLabel = id => { const p = pumps.find(x => x.id === id); if (!p) return 'N/D'; const t = tanks.find(x => x.id === p.tankId); return `Bomba #${p.number}${t ? ' — '+t.product : ''}`; };
+  const fmt = v => v?.toLocaleString('pt-AO', { minimumFractionDigits: 2 }) || '0,00';
+  const fmtDate = d => { try { const dt = d?.toDate ? d.toDate() : new Date(d); return dt.toLocaleDateString('pt-AO') + ' ' + dt.toLocaleTimeString('pt-AO', { hour:'2-digit', minute:'2-digit' }); } catch { return '—'; }};
+  const total = sales.reduce((s, x) => s + (x.total || 0), 0);
+  const totalLiters = sales.reduce((s, x) => s + (x.liters || 0), 0);
+  const filtered = dateFilter ? sales.filter(s => { const d = s.date?.toDate ? s.date.toDate() : new Date(s.date); return d.toISOString().startsWith(dateFilter); }) : sales;
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div><div className="section-label">Operações</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Registo de Vendas</h2></div>
+        {selectedStation && <button className="btn btn-primary" onClick={() => { setForm({ pumpId:'', liters:'', pricePerLiter:'', paymentMethod:'Numerário', date:'' }); setModal(true); }}>{icons.add} Nova Venda</button>}
+      </div>
+
+      <div style={{display:'flex',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        <div className="form-group" style={{minWidth:200}}>
+          <label className="form-label">Posto</label>
+          <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+            <option value="">Selecionar posto...</option>
+            {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+        </div>
+        {selectedStation && (
+          <div className="form-group">
+            <label className="form-label">Filtrar por data</label>
+            <input className="form-input" type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}/>
+          </div>
+        )}
+      </div>
+
+      {selectedStation && (
+        <div className="stats-grid" style={{marginBottom:20}}>
+          <div className="stat-card amber"><div className="stat-label">Total Vendas</div><div className="stat-value amber">AOA {fmt(total)}</div><div className="stat-sub">{filtered.length} transacções</div></div>
+          <div className="stat-card green"><div className="stat-label">Total Litros</div><div className="stat-value green">{totalLiters.toFixed(2)} L</div></div>
+        </div>
+      )}
+
+      {!selectedStation ? <div className="empty-state"><div className="empty-state-icon">💳</div><h3>Selecione um posto</h3></div> : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Bomba / Produto</th><th>Litros</th><th>Preço/L</th><th>Total (AOA)</th><th>Pagamento</th><th>Data</th><th>Ação</th></tr></thead>
+            <tbody>
+              {filtered.length === 0 ? <tr><td colSpan={7}><div className="empty-state"><div className="empty-state-icon">💳</div><p>Nenhuma venda encontrada</p></div></td></tr> : filtered.map(s => (
+                <tr key={s.id}>
+                  <td>{getPumpLabel(s.pumpId)}</td>
+                  <td className="td-mono">{s.liters?.toFixed(2)} L</td>
+                  <td className="td-mono">{fmt(s.pricePerLiter)}</td>
+                  <td className="td-mono" style={{color:'var(--accent)',fontWeight:600}}>{fmt(s.total)}</td>
+                  <td><span className="badge badge-gray">{s.paymentMethod}</span></td>
+                  <td style={{color:'var(--text3)',fontSize:11,whiteSpace:'nowrap'}}>{fmtDate(s.date)}</td>
+                  <td><button className="btn btn-danger btn-xs" onClick={() => setConfirm({ id: s.id })}>{icons.delete}</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal title="Registar Venda" open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={save}>Registar Venda</button></>}>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Bomba *</label>
+            <select className="form-select" value={form.pumpId} onChange={e => f('pumpId', e.target.value)}>
+              <option value="">Selecionar bomba...</option>
+              {pumps.map(p => <option key={p.id} value={p.id}>{getPumpLabel(p.id)}</option>)}
+            </select>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Contador Inicial</label><input className="form-input td-mono" type="number" value={form.readingInit} onChange={e => f('readingInit', e.target.value)} placeholder="0.00"/></div>
+            <div className="form-group"><label className="form-label">Contador Final</label><input className="form-input td-mono" type="number" value={form.readingEnd} onChange={e => f('readingEnd', e.target.value)} placeholder="0.00"/></div>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Litros Calculados</label><input className="form-input" type="number" step="0.01" value={form.liters} onChange={e => f('liters', e.target.value)} placeholder="Ex: 50.00"/></div>
+            <div className="form-group"><label className="form-label">Preço por Litro (AOA) *</label><input className="form-input" type="number" step="0.01" value={form.pricePerLiter} onChange={e => f('pricePerLiter', e.target.value)} placeholder="Ex: 300.00"/></div>
+          </div>
+          {form.liters && form.pricePerLiter && (
+            <div style={{padding:16,background:'rgba(245,158,11,.1)',borderRadius:8,border:'1px solid rgba(245,158,11,.2)',textAlign:'center'}}>
+              <div style={{fontSize:11,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.1em'}}>Total da Venda</div>
+              <div style={{fontSize:24,fontFamily:'Syne,sans-serif',fontWeight:800,color:'var(--accent)'}}>AOA {fmt(parseFloat(form.liters) * parseFloat(form.pricePerLiter))}</div>
+            </div>
+          )}
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Forma de Pagamento</label>
+              <select className="form-select" value={form.paymentMethod} onChange={e => f('paymentMethod', e.target.value)}>
+                {['Numerário','Multicaixa','Transferência','Crédito'].map(m => <option key={m}>{m}</option>)}
+              </select>
+            </div>
+            <div className="form-group"><label className="form-label">Data/Hora</label><input className="form-input" type="datetime-local" value={form.date} onChange={e => f('date', e.target.value)}/></div>
+          </div>
+        </div>
+      </Modal>
+
+      <Confirm open={!!confirm} onClose={() => setConfirm(null)} onConfirm={async () => { await deleteItem(`companies/${company.id}/stations/${selectedStation}/sales/${confirm?.id}`); loadSales(); }} title="Eliminar Venda" message="Eliminar esta venda? Esta acção não pode ser desfeita."/>
+    </div>
+  );
+}
+
+/* ─────────────── RECEIPTS PAGE ─────────────── */
+function ReceiptsPage({ company, stations }) {
+  const [selectedStation, setSelectedStation] = useState('');
+  const [receipts, setReceipts] = useState([]);
+  const [tanks, setTanks] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [form, setForm] = useState({ product:'', quantity:'', guideNumber:'', supplier:'', tankId:'', date:'' });
+
+  useEffect(() => { if (selectedStation) { loadReceipts(); loadTanks(); } }, [selectedStation]);
+
+  async function loadReceipts() {
+    const data = await col(`companies/${company.id}/stations/${selectedStation}/fuelReceipts`);
+    data.sort((a,b) => { const da = a.date?.toDate ? a.date.toDate() : new Date(a.date); const db_ = b.date?.toDate ? b.date.toDate() : new Date(b.date); return db_ - da; });
+    setReceipts(data);
+  }
+  async function loadTanks() { setTanks(await col(`companies/${company.id}/stations/${selectedStation}/tanks`)); }
+
+  async function save() {
+    try {
+      const qty = parseFloat(form.quantity) || 0;
+      const receiptData = { product: form.product, quantity: qty, guideNumber: form.guideNumber, supplier: form.supplier, tankId: form.tankId, date: form.date ? new Date(form.date) : new Date() };
+
+      // Update tank volume
+      if (form.tankId) {
+        const tank = tanks.find(t => t.id === form.tankId);
+        if (tank) {
+          const newVol = Math.min(tank.capacity || 999999, (tank.volume || 0) + qty);
+          await updateItem(`companies/${company.id}/stations/${selectedStation}/tanks/${tank.id}`, { volume: newVol });
+          await addItem(`companies/${company.id}/stations/${selectedStation}/stock`, { type:'entry', product: tank.product, quantity: qty, reference:`Guia: ${form.guideNumber}`, date: new Date() });
+        }
+      }
+
+      await addItem(`companies/${company.id}/stations/${selectedStation}/fuelReceipts`, receiptData, company.id, 'user', `Recepção registada: ${qty}L (Guia: ${form.guideNumber})`);
+      toast('Recepção registada', 'success');
+      setModal(false); loadReceipts(); loadTanks();
+    } catch(e) { console.error(e); toast('Erro ao registar recepção', 'error'); }
+  }
+
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const fmtDate = d => { try { const dt = d?.toDate ? d.toDate() : new Date(d); return dt.toLocaleDateString('pt-AO'); } catch { return '—'; }};
+  const totalQty = receipts.reduce((s, r) => s + (r.quantity || 0), 0);
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div><div className="section-label">Operações</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Recepção de Combustível</h2></div>
+        {selectedStation && <button className="btn btn-primary" onClick={() => { setForm({ product:'', quantity:'', guideNumber:'', supplier:'', tankId:'', date:'' }); setModal(true); }}>{icons.add} Nova Recepção</button>}
+      </div>
+
+      <div className="form-group" style={{maxWidth:280,marginBottom:20}}>
+        <label className="form-label">Posto</label>
+        <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+          <option value="">Selecionar posto...</option>
+          {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </div>
+
+      {selectedStation && (
+        <div className="stat-card amber" style={{maxWidth:260,marginBottom:20}}>
+          <div className="stat-label">Total Recebido</div>
+          <div className="stat-value amber">{totalQty.toLocaleString()} L</div>
+          <div className="stat-sub">{receipts.length} recepções</div>
+        </div>
+      )}
+
+      {!selectedStation ? <div className="empty-state"><div className="empty-state-icon">📦</div><h3>Selecione um posto</h3></div> : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Nº Guia</th><th>Produto</th><th>Quantidade (L)</th><th>Fornecedor</th><th>Data</th><th>Ação</th></tr></thead>
+            <tbody>
+              {receipts.length === 0 ? <tr><td colSpan={6}><div className="empty-state"><div className="empty-state-icon">📦</div><p>Nenhuma recepção</p></div></td></tr> : receipts.map(r => (
+                <tr key={r.id}>
+                  <td className="td-mono" style={{color:'var(--accent)'}}>{r.guideNumber}</td>
+                  <td><span className="badge badge-blue">{r.product}</span></td>
+                  <td className="td-mono">{r.quantity?.toLocaleString()} L</td>
+                  <td>{r.supplier || '—'}</td>
+                  <td style={{fontSize:12,color:'var(--text3)'}}>{fmtDate(r.date)}</td>
+                  <td><button className="btn btn-danger btn-xs" onClick={() => setConfirm({ id: r.id })}>{icons.delete}</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal title="Nova Recepção de Combustível" open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={save}>Registar</button></>}>
+        <div className="form-grid">
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Nº Guia *</label><input className="form-input" value={form.guideNumber} onChange={e => f('guideNumber', e.target.value)} placeholder="Ex: GC-2024-001"/></div>
+            <div className="form-group"><label className="form-label">Fornecedor</label><input className="form-input" value={form.supplier} onChange={e => f('supplier', e.target.value)} placeholder="Ex: Sonangol EP"/></div>
+          </div>
+          <div className="form-group"><label className="form-label">Tanque Destino</label>
+            <select className="form-select" value={form.tankId} onChange={e => { f('tankId', e.target.value); const t = tanks.find(x => x.id === e.target.value); if (t) f('product', t.product); }}>
+              <option value="">Selecionar tanque...</option>
+              {tanks.map(t => <option key={t.id} value={t.id}>{t.product} (Actual: {t.volume?.toLocaleString()} L / Cap: {t.capacity?.toLocaleString()} L)</option>)}
+            </select>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Produto</label><input className="form-input" value={form.product} onChange={e => f('product', e.target.value)} placeholder="Ex: Gasolina 95"/></div>
+            <div className="form-group"><label className="form-label">Quantidade (L) *</label><input className="form-input" type="number" value={form.quantity} onChange={e => f('quantity', e.target.value)} placeholder="Ex: 25000"/></div>
+          </div>
+          <div className="form-group"><label className="form-label">Data</label><input className="form-input" type="date" value={form.date} onChange={e => f('date', e.target.value)}/></div>
+        </div>
+      </Modal>
+
+      <Confirm open={!!confirm} onClose={() => setConfirm(null)} onConfirm={async () => { await deleteItem(`companies/${company.id}/stations/${selectedStation}/fuelReceipts/${confirm?.id}`); loadReceipts(); }} title="Eliminar Recepção" message="Eliminar esta recepção? Nota: o volume do tanque não será revertido automaticamente."/>
+    </div>
+  );
+}
+
+/* ─────────────── STOCK PAGE ─────────────── */
+function StockPage({ company, stations }) {
+  const [selectedStation, setSelectedStation] = useState('');
+  const [stock, setStock] = useState([]);
+  const [tanks, setTanks] = useState([]);
+
+  useEffect(() => { if (selectedStation) { loadStock(); loadTanks(); } }, [selectedStation]);
+
+  async function loadStock() {
+    const data = await col(`companies/${company.id}/stations/${selectedStation}/stock`);
+    data.sort((a,b) => { const da = a.date?.toDate ? a.date.toDate() : new Date(a.date); const db_ = b.date?.toDate ? b.date.toDate() : new Date(b.date); return db_ - da; });
+    setStock(data);
+  }
+  async function loadTanks() { setTanks(await col(`companies/${company.id}/stations/${selectedStation}/tanks`)); }
+
+  const fmtDate = d => { try { const dt = d?.toDate ? d.toDate() : new Date(d); return dt.toLocaleDateString('pt-AO') + ' ' + dt.toLocaleTimeString('pt-AO', { hour:'2-digit', minute:'2-digit' }); } catch { return '—'; }};
+  const totalIn = stock.filter(s => s.type === 'entry').reduce((a, s) => a + (s.quantity || 0), 0);
+  const totalOut = stock.filter(s => s.type === 'exit').reduce((a, s) => a + (s.quantity || 0), 0);
+  const balance = totalIn - totalOut;
+
+  return (
+    <div className="page-content">
+      <div style={{marginBottom:20}}>
+        <div className="section-label">Operações</div>
+        <h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Controlo de Estoque</h2>
+      </div>
+
+      <div className="form-group" style={{maxWidth:280,marginBottom:20}}>
+        <label className="form-label">Posto</label>
+        <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+          <option value="">Selecionar posto...</option>
+          {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </div>
+
+      {selectedStation && (
+        <>
+          <div className="stats-grid" style={{marginBottom:20}}>
+            <div className="stat-card green"><div className="stat-label">Total Entradas</div><div className="stat-value green">{totalIn.toLocaleString()} L</div></div>
+            <div className="stat-card red"><div className="stat-label">Total Saídas</div><div className="stat-value red">{totalOut.toLocaleString()} L</div></div>
+            <div className="stat-card amber"><div className="stat-label">Saldo Teórico</div><div className="stat-value amber">{balance.toLocaleString()} L</div></div>
+          </div>
+
+          <div style={{marginBottom:20}}>
+            <div className="section-label" style={{marginBottom:12}}>Tanques — Volume Físico Actual</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:12}}>
+              {tanks.map(t => {
+                const pct = t.capacity > 0 ? (t.volume / t.capacity) * 100 : 0;
+                return (
+                  <div key={t.id} className="tank-indicator">
+                    <div style={{fontWeight:600}}>{t.product}</div>
+                    <div className="progress-bar"><div className={`progress-fill ${pct < 20 ? 'red' : pct < 50 ? 'amber' : 'green'}`} style={{width:`${Math.min(100,pct)}%`}}/></div>
+                    <div className="tank-info"><span>{t.volume?.toLocaleString()} L físico</span><span>{pct.toFixed(1)}%</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Tipo</th><th>Produto</th><th>Quantidade (L)</th><th>Referência</th><th>Data/Hora</th></tr></thead>
+              <tbody>
+                {stock.length === 0 ? <tr><td colSpan={5}><div className="empty-state"><p>Nenhum movimento de estoque</p></div></td></tr> : stock.map(s => (
+                  <tr key={s.id}>
+                    <td><span className={`badge badge-${s.type === 'entry' ? 'green' : 'red'}`}>{s.type === 'entry' ? '▲ Entrada' : '▼ Saída'}</span></td>
+                    <td>{s.product}</td>
+                    <td className="td-mono" style={{color: s.type === 'entry' ? 'var(--green)' : 'var(--red)'}}>{s.type === 'exit' ? '-' : '+'}{s.quantity?.toLocaleString()} L</td>
+                    <td style={{color:'var(--text3)'}}>{s.reference}</td>
+                    <td style={{fontSize:11,color:'var(--text3)'}}>{fmtDate(s.date)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      {!selectedStation && <div className="empty-state"><div className="empty-state-icon">📊</div><h3>Selecione um posto</h3></div>}
+    </div>
+  );
+}
+
+/* ─────────────── DIFFERENCES PAGE ─────────────── */
+function DifferencesPage({ company, stations }) {
+  const [selectedStation, setSelectedStation] = useState('');
+  const [tanks, setTanks] = useState([]);
+  const [stock, setStock] = useState([]);
+  const [physicals, setPhysicals] = useState({});
+  const [modal, setModal] = useState(false);
+
+  useEffect(() => { if (selectedStation) { loadData(); } }, [selectedStation]);
+
+  async function loadData() {
+    const t = await col(`companies/${company.id}/stations/${selectedStation}/tanks`);
+    const s = await col(`companies/${company.id}/stations/${selectedStation}/stock`);
+    setTanks(t); setStock(s);
+    const ph = {}; t.forEach(tk => ph[tk.id] = tk.volume || 0);
+    setPhysicals(ph);
+  }
+
+  function theoretical(tankId, product) {
+    const ins = stock.filter(s => s.type === 'entry' && s.product === product).reduce((a, s) => a + (s.quantity || 0), 0);
+    const outs = stock.filter(s => s.type === 'exit' && s.product === product).reduce((a, s) => a + (s.quantity || 0), 0);
+    return ins - outs;
+  }
+
+  return (
+    <div className="page-content">
+      <div style={{marginBottom:20}}>
+        <div className="section-label">Operações</div>
+        <h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Controlo de Diferenças</h2>
+        <p style={{color:'var(--text3)',fontSize:13,marginTop:4}}>Comparação entre saldo físico (medição directa) e saldo teórico (calculado pelo sistema)</p>
+      </div>
+
+      <div className="form-group" style={{maxWidth:280,marginBottom:20}}>
+        <label className="form-label">Posto</label>
+        <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+          <option value="">Selecionar posto...</option>
+          {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </div>
+
+      {selectedStation ? (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Tanque / Produto</th><th>Físico (L)</th><th>Teórico (L)</th><th>Diferença (L)</th><th>% Diferença</th><th>Status</th></tr></thead>
+            <tbody>
+              {tanks.length === 0 ? <tr><td colSpan={6}><div className="empty-state"><p>Nenhum tanque</p></div></td></tr> : tanks.map(t => {
+                const physical = physicals[t.id] || 0;
+                const theo = theoretical(t.id, t.product);
+                const diff = physical - theo;
+                const pctDiff = theo !== 0 ? (diff / theo) * 100 : 0;
+                const critical = Math.abs(pctDiff) > 2;
+                return (
+                  <tr key={t.id}>
+                    <td><strong>{t.product}</strong></td>
+                    <td className="td-mono">{physical.toLocaleString()} L</td>
+                    <td className="td-mono">{theo.toLocaleString()} L</td>
+                    <td className="td-mono" style={{color: diff < 0 ? 'var(--red)' : diff > 0 ? 'var(--green)' : 'var(--text3)', fontWeight:600}}>{diff > 0 ? '+' : ''}{diff.toLocaleString()} L</td>
+                    <td className="td-mono" style={{color: critical ? 'var(--red)' : 'var(--text3)'}}>{diff > 0 ? '+' : ''}{pctDiff.toFixed(2)}%</td>
+                    <td><span className={`badge badge-${critical ? 'red' : Math.abs(pctDiff) > 1 ? 'amber' : 'green'}`}>{critical ? 'Crítico' : Math.abs(pctDiff) > 1 ? 'Atenção' : 'Normal'}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : <div className="empty-state"><div className="empty-state-icon">⚖</div><h3>Selecione um posto</h3></div>}
+    </div>
+  );
+}
+
+/* ─────────────── REPORTS PAGE ─────────────── */
+function ReportsPage({ company, stations }) {
+  const [tab, setTab] = useState('daily');
+  const [selectedStation, setSelectedStation] = useState('');
+  const [dateFrom, setDateFrom] = useState(() => { const d = new Date(); d.setDate(1); return d.toISOString().split('T')[0]; });
+  const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function generateReport() {
+    if (!company || !selectedStation) { toast('Selecione um posto', 'error'); return; }
+    setLoading(true);
+    try {
+      const from = new Date(dateFrom); from.setHours(0,0,0,0);
+      const to = new Date(dateTo); to.setHours(23,59,59,999);
+      const sales = await col(`companies/${company.id}/stations/${selectedStation}/sales`);
+      const receipts = await col(`companies/${company.id}/stations/${selectedStation}/fuelReceipts`);
+      const tanks = await col(`companies/${company.id}/stations/${selectedStation}/tanks`);
+
+      const filtSales = sales.filter(s => { const d = s.date?.toDate ? s.date.toDate() : new Date(s.date); return d >= from && d <= to; });
+      const filtReceipts = receipts.filter(r => { const d = r.date?.toDate ? r.date.toDate() : new Date(r.date); return d >= from && d <= to; });
+
+      const totalRevenue = filtSales.reduce((a, s) => a + (s.total || 0), 0);
+      const totalLiters = filtSales.reduce((a, s) => a + (s.liters || 0), 0);
+      const totalReceived = filtReceipts.reduce((a, r) => a + (r.quantity || 0), 0);
+
+      // Group by product
+      const byProduct = {};
+      filtSales.forEach(s => {
+        // We'd need to get product from pump/tank chain — simplified here
+        const prod = 'Vendas';
+        if (!byProduct[prod]) byProduct[prod] = { liters: 0, revenue: 0, count: 0 };
+        byProduct[prod].liters += s.liters || 0;
+        byProduct[prod].revenue += s.total || 0;
+        byProduct[prod].count++;
+      });
+
+      // By payment method
+      const byPayment = {};
+      filtSales.forEach(s => {
+        const pm = s.paymentMethod || 'Desconhecido';
+        if (!byPayment[pm]) byPayment[pm] = 0;
+        byPayment[pm] += s.total || 0;
+      });
+
+      setData({ totalRevenue, totalLiters, totalReceived, filtSales, filtReceipts, tanks, byPayment, salesCount: filtSales.length });
+    } catch(e) { console.error(e); toast('Erro ao gerar relatório', 'error'); }
+    setLoading(false);
+  }
+
+  const fmt = v => v?.toLocaleString('pt-AO', { minimumFractionDigits: 2 }) || '0,00';
+
+  return (
+    <div className="page-content">
+      <div style={{marginBottom:20}}><div className="section-label">Análise</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Relatórios</h2></div>
+
+      <div className="card" style={{marginBottom:20}}>
+        <div className="card-header"><span className="card-title">Parâmetros do Relatório</span></div>
+        <div style={{display:'flex',gap:16,flexWrap:'wrap',alignItems:'flex-end'}}>
+          <div className="form-group" style={{minWidth:220}}>
+            <label className="form-label">Posto</label>
+            <select className="form-select" value={selectedStation} onChange={e => setSelectedStation(e.target.value)}>
+              <option value="">Selecionar posto...</option>
+              {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Data Início</label>
+            <input className="form-input" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Data Fim</label>
+            <input className="form-input" type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}/>
+          </div>
+          <button className="btn btn-primary" onClick={generateReport} disabled={loading}>
+            {loading ? <><span className="spinner"/> Gerando...</> : '📋 Gerar Relatório'}
+          </button>
+        </div>
+      </div>
+
+      {data && (
+        <>
+          <div className="stats-grid" style={{marginBottom:20}}>
+            <div className="stat-card amber"><div className="stat-label">Receita Total</div><div className="stat-value amber">AOA {fmt(data.totalRevenue)}</div><div className="stat-sub">{data.salesCount} transacções</div></div>
+            <div className="stat-card green"><div className="stat-label">Litros Vendidos</div><div className="stat-value green">{data.totalLiters.toFixed(2)} L</div></div>
+            <div className="stat-card blue"><div className="stat-label">Litros Recebidos</div><div className="stat-value blue">{data.totalReceived.toLocaleString()} L</div></div>
+            <div className="stat-card"><div className="stat-label">Ticket Médio</div><div className="stat-value amber">{data.salesCount > 0 ? fmt(data.totalRevenue / data.salesCount) : '0,00'}</div></div>
+          </div>
+
+          <div className="dash-grid">
+            <div className="card">
+              <div className="card-header"><span className="card-title">Vendas por Forma de Pagamento</span></div>
+              {Object.entries(data.byPayment).map(([method, total]) => (
+                <div key={method} className="report-metric">
+                  <span className="report-metric-label">{method}</span>
+                  <span className="report-metric-value">AOA {fmt(total)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="card">
+              <div className="card-header"><span className="card-title">Estado Actual dos Tanques</span></div>
+              {data.tanks.map(t => {
+                const pct = t.capacity > 0 ? (t.volume / t.capacity) * 100 : 0;
+                return (
+                  <div key={t.id} style={{marginBottom:12}}>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:4}}>
+                      <span style={{fontWeight:600}}>{t.product}</span>
+                      <span style={{color:'var(--text3)'}}>{t.volume?.toLocaleString()} / {t.capacity?.toLocaleString()} L</span>
+                    </div>
+                    <div className="progress-bar"><div className={`progress-fill ${pct < 20 ? 'red' : pct < 50 ? 'amber' : 'green'}`} style={{width:`${Math.min(100,pct)}%`}}/></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="card" style={{marginTop:20}}>
+            <div className="card-header">
+              <span className="card-title">Histórico de Vendas ({data.filtSales.length})</span>
+              <span style={{fontSize:11,color:'var(--text3)'}}>Período: {dateFrom} a {dateTo}</span>
+            </div>
+            <div className="table-wrap" style={{border:'none'}}>
+              <table>
+                <thead><tr><th>Data</th><th>Litros</th><th>Preço/L</th><th>Total</th><th>Pagamento</th></tr></thead>
+                <tbody>
+                  {data.filtSales.slice(0, 30).map(s => {
+                    const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
+                    return (
+                      <tr key={s.id}>
+                        <td style={{fontSize:11,color:'var(--text3)'}}>{d.toLocaleDateString('pt-AO')}</td>
+                        <td className="td-mono">{s.liters?.toFixed(2)} L</td>
+                        <td className="td-mono">{fmt(s.pricePerLiter)}</td>
+                        <td className="td-mono" style={{color:'var(--accent)',fontWeight:600}}>{fmt(s.total)}</td>
+                        <td><span className="badge badge-gray">{s.paymentMethod}</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+}
+
+/* ─────────────── SETTINGS PAGE ─────────────── */
+function SettingsPage({ company, onUpdate }) {
+  const [form, setForm] = useState({ name: company?.name||'', nif: company?.nif||'', email: company?.email||'', phone: company?.phone||'', address: company?.address||'' });
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await updateItem(`companies/${company.id}`, form, company.id, 'user', 'Actualização de dados da empresa');
+      toast('Definições actualizadas', 'success');
+      if (onUpdate) onUpdate();
+    } catch { toast('Erro ao guardar', 'error'); }
+    setSaving(false);
+  }
+
+  return (
+    <div className="page-content">
+      <div style={{marginBottom:20}}><div className="section-label">Configuração</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Definições da Empresa</h2></div>
+      <div className="card" style={{maxWidth:600}}>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Nome da Empresa</label><input className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})}/></div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">NIF</label><input className="form-input" value={form.nif} onChange={e => setForm({...form, nif: e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Telefone</label><input className="form-input" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}/></div>
+          </div>
+          <div className="form-group"><label className="form-label">Email</label><input className="form-input" value={form.email} onChange={e => setForm({...form, email: e.target.value})}/></div>
+          <div className="form-group"><label className="form-label">Endereço</label><input className="form-textarea" value={form.address} onChange={e => setForm({...form, address: e.target.value})}/></div>
+          <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? <span className="spinner"/> : 'Guardar Alterações'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── USERS PAGE ─────────────── */
+function UsersPage({ company }) {
+  const [users, setUsers] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ email:'', password:'', role:'operator', name:'' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { loadUsers(); }, []);
+
+  async function loadUsers() {
+    setLoading(true);
+    try { setUsers(await col('users')); } catch {}
+    setLoading(false);
+  }
+
+  async function createUser() {
+    setSaving(true);
+    try {
+      const { auth, createUserWithEmailAndPassword } = fb();
+      const { db, doc, setDoc } = fb();
+      const cred = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      await setDoc(doc(db, 'users', cred.user.uid), { name: form.name, email: form.email, role: form.role, companyId: company?.id || '', createdAt: new Date() });
+      toast('Utilizador criado com sucesso', 'success');
+      setModal(false); loadUsers();
+    } catch(e) {
+      const msgs = { 'auth/email-already-in-use': 'Email já em uso.', 'auth/weak-password': 'Senha fraca (min 6 caracteres).' };
+      toast(msgs[e.code] || 'Erro ao criar utilizador', 'error');
+    }
+    setSaving(false);
+  }
+
+  const roleColors = { admin: 'purple', manager: 'blue', operator: 'green' };
+  const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  return (
+    <div className="page-content">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div><div className="section-label">Administração</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Utilizadores</h2></div>
+        <button className="btn btn-primary" onClick={() => { setForm({ email:'', password:'', role:'operator', name:'' }); setModal(true); }}>{icons.add} Novo Utilizador</button>
+      </div>
+
+      {loading ? <div className="loading-screen"><div className="spinner"/></div> : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Empresa</th></tr></thead>
+            <tbody>
+              {users.length === 0 ? <tr><td colSpan={4}><div className="empty-state"><div className="empty-state-icon">👥</div><p>Nenhum utilizador</p></div></td></tr> : users.map(u => (
+                <tr key={u.id}>
+                  <td><strong>{u.name || 'N/D'}</strong></td>
+                  <td style={{color:'var(--text2)'}}>{u.email}</td>
+                  <td><span className={`badge badge-${roleColors[u.role] || 'gray'}`}>{u.role}</span></td>
+                  <td style={{color:'var(--text3)',fontSize:12}}>{u.companyId || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal title="Novo Utilizador" open={modal} onClose={() => setModal(false)}
+        footer={<><button className="btn btn-ghost" onClick={() => setModal(false)}>Cancelar</button><button className="btn btn-primary" onClick={createUser} disabled={saving}>{saving ? <><span className="spinner"/> A criar...</> : 'Criar Utilizador'}</button></>}>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Nome Completo</label><input className="form-input" value={form.name} onChange={e => f('name', e.target.value)} placeholder="Nome do utilizador"/></div>
+          <div className="form-group"><label className="form-label">Email *</label><input className="form-input" type="email" value={form.email} onChange={e => f('email', e.target.value)} placeholder="email@empresa.ao"/></div>
+          <div className="form-group"><label className="form-label">Senha *</label><input className="form-input" type="password" value={form.password} onChange={e => f('password', e.target.value)} placeholder="Mínimo 6 caracteres"/></div>
+          <div className="form-group"><label className="form-label">Perfil / Role</label>
+            <select className="form-select" value={form.role} onChange={e => f('role', e.target.value)}>
+              <option value="operator">Operador — Registo de vendas e recepções</option>
+              <option value="manager">Gestor — Gestão de postos e relatórios</option>
+              <option value="admin">Administrador — Acesso total ao sistema</option>
+            </select>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+/* ─────────────── AUDIT PAGE ─────────────── */
+function AuditPage({ company }) {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { if (company) loadLogs(); else setLoading(false); }, [company]);
+
+  async function loadLogs() {
+    setLoading(true);
+    try {
+      const data = await col(`companies/${company.id}/audit`);
+      data.sort((a,b) => { const da = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp); const db_ = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp); return db_ - da; });
+      setLogs(data.slice(0, 100));
+    } catch {}
+    setLoading(false);
+  }
+
+  const fmtDate = d => { try { const dt = d?.toDate ? d.toDate() : new Date(d); return dt.toLocaleString('pt-AO'); } catch { return '—'; }};
+
+  return (
+    <div className="page-content">
+      <div style={{marginBottom:20}}><div className="section-label">Administração</div><h2 style={{fontFamily:'Syne,sans-serif',fontSize:20,fontWeight:700}}>Log de Auditoria</h2></div>
+      {!company ? <div className="alert alert-warn">Selecione uma empresa</div> : loading ? <div className="loading-screen"><div className="spinner"/></div> : (
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Acção</th><th>Detalhes</th><th>Utilizador</th><th>Data/Hora</th></tr></thead>
+            <tbody>
+              {logs.length === 0 ? <tr><td colSpan={4}><div className="empty-state"><div className="empty-state-icon">📜</div><p>Nenhum log de auditoria</p></div></td></tr> : logs.map(l => (
+                <tr key={l.id}>
+                  <td><span className="badge badge-blue">{l.action}</span></td>
+                  <td style={{color:'var(--text2)',fontSize:12}}>{JSON.stringify(l.details)}</td>
+                  <td style={{color:'var(--text3)',fontSize:12}}>{l.userId}</td>
+                  <td style={{fontSize:11,color:'var(--text3)',whiteSpace:'nowrap'}}>{fmtDate(l.timestamp)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────── SETUP DEMO DATA ─────────────── */
+async function setupDemoMode() {
+  // Demo mode with sample data for testing without Firebase
+  window.__demoMode = true;
+}
+
+/* ─────────────── MAIN APP ─────────────── */
+function App() {
+  const [firebaseReady, setFirebaseReady] = useState(!!window.__firebaseReady);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [companies, setCompanies] = useState([]);
+  const [stations, setStations] = useState([]);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
+
+  useEffect(() => {
+    if (firebaseReady) return;
+    const handler = () => setFirebaseReady(true);
+    window.addEventListener('firebase-ready', handler);
+    return () => window.removeEventListener('firebase-ready', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!firebaseReady && !isDemo()) return;
+    
+    if (isDemo()) {
+      const checkAuth = () => {
+        const u = JSON.parse(localStorage.getItem('demo_auth'));
+        setUser(u ? { email: u.email, uid: u.id } : null);
+        if (u) {
+          setProfile(u);
+          getCompanyData(u.companyId).then(setCompany);
+          setSelectedCompanyId(u.companyId);
+          col('companies').then(setCompanies);
+        }
+        setAuthLoading(false);
+      };
+      checkAuth();
+      window.addEventListener('demo-auth-changed', checkAuth);
+      return () => window.removeEventListener('demo-auth-changed', checkAuth);
+    }
+
+    const { auth, onAuthStateChanged } = fb();
+    return onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (u) {
+        const prof = await getUserProfile(u.uid);
+        setProfile(prof);
+        if (prof?.companyId) {
+          const comp = await getCompanyData(prof.companyId);
+          setCompany(comp);
+          setSelectedCompanyId(prof.companyId);
+        }
+        if (prof?.role === 'admin') {
+          setCompanies(await col('companies'));
+        }
+      } else {
+        setProfile(null); setCompany(null); setCompanies([]);
+      }
+      setAuthLoading(false);
+    });
+  }, [firebaseReady]);
+
+  useEffect(() => { if (company) loadStations(); }, [company]);
+
+  async function loadStations() {
+    if (!company) return;
+    setStations(await col(`companies/${company.id}/stations`));
+  }
+
+  async function changeCompany(id) {
+    if (!id) return;
+    setSelectedCompanyId(id);
+    const comp = await getCompanyData(id);
+    setCompany(comp);
+  }
+
+  async function signOutUser() {
+    if (isDemo()) {
+      localStorage.removeItem('demo_auth');
+      window.dispatchEvent(new Event('demo-auth-changed'));
+    } else {
+      const { auth, signOut } = fb();
+      await signOut(auth);
+    }
+    setCurrentPage('dashboard');
+  }
+
+  if (!firebaseReady) {
+    return (
+      <div className="loading-screen">
+        <div style={{fontSize:48,marginBottom:16}}>⛽</div>
+        <div className="spinner" style={{width:32,height:32}}/>
+        <p>A inicializar FuelgestAngola...</p>
+        <p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>Configure as suas credenciais Firebase no ficheiro index.html</p>
+      </div>
+    );
+  }
+
+  if (authLoading) {
+    return <div className="loading-screen"><div className="spinner" style={{width:32,height:32}}/><p>A verificar autenticação...</p></div>;
+  }
+
+  if (!user) return <AuthPage/>;
+
+  const navigate = (page) => setCurrentPage(page);
+
+  const pages = {
+    dashboard: <Dashboard company={company} stations={stations}/>,
+    companies: <CompaniesPage/>,
+    stations: <StationsPage company={company} stations={stations} reloadStations={loadStations}/>,
+    tanks: <TanksPage company={company} stations={stations}/>,
+    pumps: <PumpsPage company={company} stations={stations}/>,
+    sales: <SalesPage company={company} stations={stations}/>,
+    receipts: <ReceiptsPage company={company} stations={stations}/>,
+    stock: <StockPage company={company} stations={stations}/>,
+    differences: <DifferencesPage company={company} stations={stations}/>,
+    reports: <ReportsPage company={company} stations={stations}/>,
+    users: <UsersPage company={company}/>,
+    audit: <AuditPage company={company}/>,
+    settings: <SettingsPage company={company} onUpdate={async () => { const c = await getCompanyData(company.id); setCompany(c); }}/>,
+  };
+
+  const pageTitles = {
+    dashboard:'Dashboard', companies:'Empresas', stations:'Postos', tanks:'Tanques',
+    pumps:'Bombas', sales:'Vendas', receipts:'Recepção de Combustível', stock:'Estoque',
+    differences:'Diferenças', reports:'Relatórios', users:'Utilizadores', audit:'Auditoria', settings:'Definições',
+  };
+
+  return (
+    <AppContext.Provider value={{ signOutUser }}>
+      <div className="app-shell">
+        <Sidebar currentPage={currentPage} navigate={navigate} user={user} profile={profile} company={company}/>
+        <div className="main">
+          <div className="topbar">
+            <h1 className="page-title">{pageTitles[currentPage]}</h1>
+            <div className="topbar-actions">
+              {profile?.role === 'admin' && companies.length > 0 && (
+                <select className="form-select" style={{width:'auto',fontSize:12}} value={selectedCompanyId} onChange={e => changeCompany(e.target.value)}>
+                  <option value="">Selecionar empresa...</option>
+                  {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              )}
+              <div style={{fontSize:12,color:'var(--text3)'}}>
+                {new Date().toLocaleDateString('pt-AO', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })}
+              </div>
+            </div>
+          </div>
+          {pages[currentPage] || <div className="page-content"><div className="empty-state"><div className="empty-state-icon">🔧</div><h3>Página em desenvolvimento</h3></div></div>}
+        </div>
+      </div>
+      <Toasts/>
+    </AppContext.Provider>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
