@@ -15,6 +15,7 @@ export function renderSidebar({ currentPage, user, profile, company, onNavigate,
       { id: 'stations', label: 'Postos', icon: icons.stations },
       { id: 'tanks', label: 'Tanques', icon: icons.tanks },
       { id: 'pumps', label: 'Bombas', icon: icons.pumps },
+      { id: 'products', label: 'Tabela de Preços', icon: icons.settings },
     ]},
     { label: 'Análise', items: [
       { id: 'reports', label: 'Relatórios', icon: icons.reports },

@@ -26,6 +26,7 @@ import { renderUsersPage } from './pages/users.js';
 import { renderAuditPage } from './pages/audit.js';
 import { renderSettingsPage } from './pages/settings.js';
 import { renderSetupPage } from './pages/setup.js';
+import { renderProductsPage } from './pages/products.js';
 
 class App {
   constructor() {
@@ -178,7 +179,7 @@ class App {
       dashboard:'Dashboard', companies:'Empresas', stations:'Postos', tanks:'Tanques',
       pumps:'Bombas', sales:'Vendas', receipts:'Recepção de Combustível', stock:'Estoque',
       differences:'Diferenças', reports:'Relatórios', users:'Utilizadores', audit:'Auditoria',
-      settings: 'Definições'
+      settings: 'Definições', products: 'Tabela de Preços'
     };
 
     topbar.innerHTML = `
@@ -225,7 +226,8 @@ class App {
       users: renderUsersPage,
       audit: renderAuditPage,
       settings: renderSettingsPage,
-      setup: renderSetupPage
+      setup: renderSetupPage,
+      products: renderProductsPage
     };
 
     const renderer = pages[this.currentPage];

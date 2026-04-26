@@ -41,6 +41,7 @@ export async function renderReportsPage({ company, stations }) {
           <button class="btn btn-primary" id="gen-rep-btn" ${loading ? 'disabled' : ''}>
             ${loading ? '<span class="spinner"></span> Gerando...' : '📋 Gerar Relatório'}
           </button>
+          ${reportData ? `<button class="btn btn-ghost" id="export-pdf-btn">📄 Exportar PDF</button>` : ''}
         </div>
       </div>
 
@@ -50,6 +51,7 @@ export async function renderReportsPage({ company, stations }) {
     `;
 
     page.querySelector('#gen-rep-btn').onclick = generateReport;
+    if (reportData) page.querySelector('#export-pdf-btn').onclick = exportPDF;
     page.querySelector('#rep-station').onchange = (e) => selectedStation = e.target.value;
     page.querySelector('#rep-from').onchange = (e) => dateFrom = e.target.value;
     page.querySelector('#rep-to').onchange = (e) => dateTo = e.target.value;
@@ -118,6 +120,59 @@ export async function renderReportsPage({ company, stations }) {
         </div>
       </div>
     `;
+  }
+
+  function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const station = stations.find(s => s.id === selectedStation);
+    const fmt = v => v?.toLocaleString('pt-AO', { minimumFractionDigits: 2 }) || '0,00';
+
+    // Header
+    doc.setFontSize(20);
+    doc.text('FuelgestAngola - Relatório Operacional', 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Empresa: ${company.name}`, 14, 32);
+    doc.text(`Posto: ${station?.name || 'Todos'}`, 14, 38);
+    doc.text(`Período: ${dateFrom} até ${dateTo}`, 14, 44);
+
+    // Summary Table
+    doc.autoTable({
+      startY: 52,
+      head: [['Métrica', 'Valor']],
+      body: [
+        ['Receita Total', `AOA ${fmt(reportData.revenue)}`],
+        ['Litros Vendidos', `${reportData.liters.toFixed(2)} L`],
+        ['Total Transações', reportData.salesCount.toString()],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [249, 115, 22] }
+    });
+
+    // Sales Table
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text('Detalhamento de Vendas', 14, doc.lastAutoTable.finalY + 15);
+
+    const tableRows = reportData.sales.map(s => [
+      s.date?.toDate ? s.date.toDate().toLocaleString('pt-AO') : new Date(s.date).toLocaleString('pt-AO'),
+      s.product || '—',
+      `${s.liters.toFixed(2)} L`,
+      `AOA ${fmt(s.pricePerLiter)}`,
+      `AOA ${fmt(s.total)}`,
+      s.paymentMethod
+    ]);
+
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 20,
+      head: [['Data', 'Produto', 'Litros', 'P.Unit', 'Total', 'Pagamento']],
+      body: tableRows,
+      theme: 'striped',
+      headStyles: { fillColor: [50, 50, 50] }
+    });
+
+    doc.save(`Relatorio_${station?.name || 'Posto'}_${dateFrom}.pdf`);
   }
 
   await render();

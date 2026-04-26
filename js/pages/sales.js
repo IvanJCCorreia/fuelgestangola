@@ -22,6 +22,7 @@ export async function renderSalesPage({ company, stations }) {
       sales = await col(`${base}/sales`);
       pumps = await col(`${base}/pumps`);
       tanks = await col(`${base}/tanks`);
+      const products = await col(`companies/${company.id}/products`);
       
       sales.sort((a,b) => {
         const da = a.date?.toDate ? a.date.toDate() : new Date(a.date);
@@ -99,7 +100,10 @@ export async function renderSalesPage({ company, stations }) {
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Litros Calculados</label><input class="form-input" type="number" step="0.01" id="modal-liters" placeholder="Ex: 50.00"></div>
-          <div class="form-group"><label class="form-label">Preço Unit. (AOA) *</label><input class="form-input" type="number" id="modal-price" value="300"></div>
+          <div class="form-group">
+            <label class="form-label">Preço Unit. (AOA)</label>
+            <input class="form-input" type="number" id="modal-price" readonly style="background:var(--surface3);cursor:not-allowed;font-weight:700;color:var(--accent)">
+          </div>
         </div>
         <div id="modal-total-display" style="padding:16px;background:rgba(245,158,11,.1);border-radius:8px;text-align:center;display:none">
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase">Total da Venda</div>
@@ -126,8 +130,26 @@ export async function renderSalesPage({ company, stations }) {
     const readEnd = modal.querySelector('#modal-read-end');
     const litersInput = modal.querySelector('#modal-liters');
     const priceInput = modal.querySelector('#modal-price');
+    const pumpSelect = modal.querySelector('#modal-pump');
     const totalDisplay = modal.querySelector('#modal-total-display');
     const totalVal = modal.querySelector('#total-val');
+
+    const products = await col(`companies/${company.id}/products`);
+
+    const updatePrice = () => {
+      const pumpId = pumpSelect.value;
+      const pump = pumps.find(p => p.id === pumpId);
+      if (pump) {
+        const prod = products.find(p => p.name.toLowerCase() === pump.product.toLowerCase());
+        priceInput.value = prod ? prod.price : 0;
+        if (!prod) createToast(`Preço não definido para ${pump.product}`, 'warn');
+      } else {
+        priceInput.value = '';
+      }
+      updateTotals();
+    };
+
+    pumpSelect.onchange = updatePrice;
 
     const updateTotals = () => {
       const init = parseFloat(readInit.value) || 0;
